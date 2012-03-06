@@ -58,7 +58,7 @@ namespace Blighttp
 			ClientServer.RemoveClient(this);
 		}
 
-		void ProcessHeader(string header)
+		Request ProcessHeader(string header)
 		{
 			List<string> lines = header.Tokenise(Separator);
 			if (lines.Count == 0)
@@ -97,42 +97,80 @@ namespace Blighttp
 				default:
 					throw new ClientException("Unknown protocol version specified");
 			}
+			Dictionary<string, string> headers = new Dictionary<string, string>();
 			foreach (var line in lines.GetRange(1, lines.Count - 1))
 			{
-				int offset = line.IndexOf(": ");
+				const string target = ":";
+				int offset = line.IndexOf(target);
 				if (offset == -1)
 					throw new ClientException("Invalid line in header");
+				string key = line.Substring(0, offset);
+				string value = line.Substring(offset + target.Length);
+				headers[key] = value.Trim();
 			}
+			Request request = new Request(type, path, httpVersion, headers);
+			return request;
 		}
 
 		public void Run()
 		{
 			WriteLine("Connected");
+			Request request;
 			while (true)
 			{
 				bool connectionActive = Read();
 				if (!connectionActive)
 				{
-					Terminate("Disconnected");
+					Terminate("Disconnected while reading headers");
 					return;
 				}
-				if (Buffer.Length >= MaximumBufferSize)
+				if (Buffer.Length > MaximumBufferSize)
 				{
 					Terminate("Maximum buffer size exceeded");
 					return;
 				}
 
 				int offset = Buffer.IndexOf(EndOfHeader);
-				if (offset == -1)
+				if (offset > 0)
 				{
-					//Header still not available, continue reading
-					continue;
+					//Header has been fully read
+					try
+					{
+						string header = Buffer.Substring(0, offset);
+						Buffer.Remove(0, offset + EndOfHeader.Length);
+						request = ProcessHeader(header);
+					}
+					catch(ClientException exception)
+					{
+						Terminate(exception.Message);
+						return;
+					}
+					break;
 				}
 
-				//Header has been fully read
-				string header = Buffer.Substring(0, offset);
-				Buffer.Remove(0, offset + EndOfHeader.Length);
-				break;
+				//Header still not available, continue reading
+			}
+
+			if (request.ContentLength.HasValue)
+			{
+				//The request might have a body
+				if (request.ContentLength > MaximumBufferSize)
+				{
+					Terminate("Body exceeds maximum buffer size");
+					return;
+				}
+				while (Buffer.Length < request.ContentLength)
+				{
+					bool connectionActive = Read();
+					if (!connectionActive)
+					{
+						Terminate("Disconnected while reading body");
+						return;
+					}
+				}
+
+				string body = Buffer;
+				request.ProcessBody(body);
 			}
 		}
 	}
