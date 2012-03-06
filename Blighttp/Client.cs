@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
+using System.Text;
+using System.Web;
 
 using Nil;
 
 namespace Blighttp
 {
-	class Client
+	public class Client
 	{
 		const int ReceiveBufferSize = 0x1000;
 		const int MaximumBufferSize = 0x10000;
@@ -33,9 +33,16 @@ namespace Blighttp
 		bool Read()
 		{
 			byte[] ReceiveBuffer = new byte[ReceiveBufferSize];
-			int bytesRead = ClientSocket.Receive(ReceiveBuffer, SocketFlags.None);
-			Buffer += ReceiveBuffer.ToString();
-			return bytesRead > 0;
+			try
+			{
+				int bytesRead = ClientSocket.Receive(ReceiveBuffer, SocketFlags.None);
+				Buffer += Encoding.UTF8.GetString(ReceiveBuffer, 0, bytesRead);
+				return bytesRead > 0;
+			}
+			catch (SocketException)
+			{
+				return false;
+			}
 		}
 
 		void WriteLine(string message, params object[] arguments)
@@ -49,6 +56,53 @@ namespace Blighttp
 			WriteLine(reason);
 			ClientSocket.Close();
 			ClientServer.RemoveClient(this);
+		}
+
+		void ProcessHeader(string header)
+		{
+			List<string> lines = header.Tokenise(Separator);
+			if (lines.Count == 0)
+				throw new ClientException("Invalid number of entries in header");
+			List<string> requestTokens = lines[0].Tokenise(" ");
+			if (requestTokens.Count != 3)
+				throw new ClientException("Invalid number of tokens in request line");
+			string requestTypeString = requestTokens[0];
+			string path = HttpUtility.UrlDecode(requestTokens[1]);
+			string versionString = requestTokens[2];
+			RequestType type;
+			switch (requestTypeString)
+			{
+				case "GET":
+					type = RequestType.Get;
+					break;
+
+				case "POST":
+					type = RequestType.Post;
+					break;
+
+				default:
+					throw new ClientException("Unknown request type");
+			}
+			double httpVersion;
+			switch (versionString)
+			{
+				case "HTTP/1.0":
+					httpVersion = 1.0;
+					break;
+
+				case "HTTP/1.1":
+					httpVersion = 1.1;
+					break;
+
+				default:
+					throw new ClientException("Unknown protocol version specified");
+			}
+			foreach (var line in lines.GetRange(1, lines.Count - 1))
+			{
+				int offset = line.IndexOf(": ");
+				if (offset == -1)
+					throw new ClientException("Invalid line in header");
+			}
 		}
 
 		public void Run()

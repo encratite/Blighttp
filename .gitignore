@@ -1,4 +1,4 @@
 *.user
 *.suo
-/Blighttp/obj
-/Blighttp/bin
+/*/obj
+/*/bin

@@ -34,6 +34,8 @@ namespace Blighttp
 		{
 			BindAndListen();
 
+			Console.WriteLine("Running on {0}:{1}", Host, Port);
+
 			while (true)
 			{
 				Socket clientSocket = ServerSocket.Accept();
