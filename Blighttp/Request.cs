@@ -3,19 +3,22 @@ using System.Collections.Generic;
 
 namespace Blighttp
 {
-	enum RequestType
+	public enum RequestType
 	{
 		Get,
 		Post,
 	};
 
-	class Request
+	public class Request
 	{
 		public RequestType Type;
 		public string Path;
 		public double Version;
 		public Dictionary<string, string> Headers;
 		public int? ContentLength;
+
+		//Set by the Handler
+		public List<object> Arguments;
 
 		public Request(RequestType type, string path, double version, Dictionary<string, string> headers)
 		{

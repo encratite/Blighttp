@@ -51,5 +51,9 @@ namespace Blighttp
 			lock (Clients)
 				Clients.Remove(client);
 		}
+
+		public Reply HandleRequest(Request request)
+		{
+		}
 	}
 }

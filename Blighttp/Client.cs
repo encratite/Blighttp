@@ -172,6 +172,14 @@ namespace Blighttp
 				string body = Buffer;
 				request.ProcessBody(body);
 			}
+
+			Reply reply = ClientServer.HandleRequest(request);
+			string packet = reply.GetData();
+			UTF8Encoding encoding = new UTF8Encoding();
+			byte[] bytes = encoding.GetBytes(packet);
+			ClientSocket.Send(bytes);
+
+			Terminate("Disconnected");
 		}
 	}
 }

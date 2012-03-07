@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Reply.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="ClientException.cs" />
     <Compile Include="Request.cs" />
