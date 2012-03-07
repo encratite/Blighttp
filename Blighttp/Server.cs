@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -69,12 +70,38 @@ namespace Blighttp
 
 		public Reply HandleRequest(Request request)
 		{
-			List<string> remainingPath = ConvertPath(request.Path);
-			foreach (var handler in Handlers)
+			try
 			{
-				Reply reply = handler.RouteRequest(request, remainingPath);
-				if (reply != null)
-					return reply;
+				List<string> remainingPath = ConvertPath(request.Path);
+				foreach (var handler in Handlers)
+				{
+					Reply reply = handler.RouteRequest(request, remainingPath);
+					if (reply != null)
+						return reply;
+				}
+			}
+			catch (HandlerException exception)
+			{
+				Reply exceptionReply = new Reply(ReplyCode.BadRequest, ContentType.Plain, exception.Message);
+				return exceptionReply;
+			}
+			catch (Exception exception)
+			{
+				if (Debugger.IsAttached)
+				{
+					//While a debugger is attached, it's more convenient to go right to the source of an exception
+					throw;
+				}
+				else
+				{
+					//Print the exception to the server console but don't leak any information to the client
+					string message = string.Format("An exception of type {0} occurred at {1}: {2}\n", exception.GetType().ToString(), exception.Source, exception.Message);
+					foreach (var trace in exception.StackTrace)
+						message += string.Format("{0}\n", trace);
+					Output.Write(message);
+					Reply exceptionReply = new Reply(ReplyCode.InternalServerError, ContentType.Plain, "Internal server error");
+					return exceptionReply;
+				}
 			}
 			Reply invalidReply = new Reply(ReplyCode.NotFound, ContentType.Plain, "Invalid path");
 			return invalidReply;

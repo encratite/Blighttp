@@ -5,6 +5,7 @@ namespace Blighttp
 	public enum ReplyCode
 	{
 		Ok,
+		BadRequest,
 		Forbidden,
 		NotFound,
 		InternalServerError,
@@ -21,6 +22,7 @@ namespace Blighttp
 		static Dictionary<ReplyCode, ReplyCodeData> NumericReplyCodes = new Dictionary<ReplyCode, ReplyCodeData>()
 		{
 			{ReplyCode.Ok, new ReplyCodeData(200, "OK")},
+			{ReplyCode.BadRequest, new ReplyCodeData(400, "Bad request")},
 			{ReplyCode.Forbidden, new ReplyCodeData(403, "Forbidden")},
 			{ReplyCode.NotFound, new ReplyCodeData(404, "Not found")},
 			{ReplyCode.InternalServerError, new ReplyCodeData(500, "Internal server error")},

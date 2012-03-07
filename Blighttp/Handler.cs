@@ -55,7 +55,7 @@ namespace Blighttp
 				if (IsDefaultHandler)
 				{
 					//Execute handler
-					HandlerDelegate(request);
+					return HandlerDelegate(request);
 				}
 				else
 					return null;
@@ -100,7 +100,7 @@ namespace Blighttp
 					}
 					request.Arguments = arguments;
 					//Execute handler
-					HandlerDelegate(request);
+					return HandlerDelegate(request);
 				}
 			}
 			//Check children
