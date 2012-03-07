@@ -9,12 +9,16 @@ namespace Blighttp
 		Integer,
 	};
 
+	public delegate Reply HandlerDelegateType(Request request);
+
 	public class Handler
 	{
 		bool IsDefaultHandler;
 
 		//Default handlers have no name
-		string? Name;
+		string Name;
+
+		HandlerDelegateType HandlerDelegate;
 
 		//Default handlers have no arguments
 		List<ArgumentType> ArgumentTypes;
@@ -22,18 +26,20 @@ namespace Blighttp
 		List<Handler> Children;
 
 		//Default handler constructor
-		public Handler()
+		public Handler(HandlerDelegateType handlerDelegate)
 		{
 			IsDefaultHandler = true;
 			Name = null;
+			HandlerDelegate = handlerDelegate;
 			ArgumentTypes = null;
 			Children = new List<Handler>();
 		}
 
-		public Handler(String name, List<ArgumentType> argumentTypes = null)
+		public Handler(String name, HandlerDelegateType handlerDelegate, List<ArgumentType> argumentTypes = null)
 		{
 			IsDefaultHandler = false;
 			Name = name;
+			HandlerDelegate = handlerDelegate;
 			if (argumentTypes == null)
 				ArgumentTypes = new List<ArgumentType>();
 			else
@@ -42,12 +48,15 @@ namespace Blighttp
 		}
 
 		//Returns null if the handler does not match
-		Reply ProcessRequest(Request request, List<string> remainingPath)
+		public Reply RouteRequest(Request request, List<string> remainingPath)
 		{
 			if (remainingPath.Count == 0)
 			{
 				if (IsDefaultHandler)
-					return Handle(request);
+				{
+					//Execute handler
+					HandlerDelegate(request);
+				}
 				else
 					return null;
 			}
@@ -55,7 +64,7 @@ namespace Blighttp
 			{
 				string currentName = remainingPath[0];
 				remainingPath = remainingPath.GetRange(1, remainingPath.Count - 1);
-				if (currentName == Name.Value)
+				if (currentName == Name)
 				{
 					//The request must be handled by this object
 					List<string> argumentStrings = remainingPath;
@@ -90,13 +99,14 @@ namespace Blighttp
 						arguments.Add(argument);
 					}
 					request.Arguments = arguments;
-					return Handle(request);
+					//Execute handler
+					HandlerDelegate(request);
 				}
 			}
 			//Check children
 			foreach (var child in Children)
 			{
-				Reply reply = child.ProcessRequest(request, remainingPath);
+				Reply reply = child.RouteRequest(request, remainingPath);
 				if (reply != null)
 				{
 					//A child of the handler found a match for the request
@@ -106,6 +116,9 @@ namespace Blighttp
 			return null;
 		}
 
-		abstract Reply Handle(Request request);
+		public void Add(Handler child)
+		{
+			Children.Add(child);
+		}
 	}
 }

@@ -31,10 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Nil, Version=0.1.4448.36092, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>G:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\PublicAssemblies\Nil.dll</HintPath>
-    </Reference>
+    <Reference Include="Nil, Version=0.2.4449.36780, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -50,6 +47,7 @@
     <Compile Include="Reply.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="ClientException.cs" />
+    <Compile Include="ReplyCodeData.cs" />
     <Compile Include="Request.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

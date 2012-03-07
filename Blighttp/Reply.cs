@@ -18,12 +18,12 @@ namespace Blighttp
 
 	public class Reply
 	{
-		static Dictionary<ReplyCode, int> NumericReplyCodes = new Dictionary<ReplyCode, int>()
+		static Dictionary<ReplyCode, ReplyCodeData> NumericReplyCodes = new Dictionary<ReplyCode, ReplyCodeData>()
 		{
-			{ReplyCode.Ok, 200},
-			{ReplyCode.Forbidden, 403},
-			{ReplyCode.NotFound, 404},
-			{ReplyCode.InternalServerError, 500},
+			{ReplyCode.Ok, new ReplyCodeData(200, "OK")},
+			{ReplyCode.Forbidden, new ReplyCodeData(403, "Forbidden")},
+			{ReplyCode.NotFound, new ReplyCodeData(404, "Not found")},
+			{ReplyCode.InternalServerError, new ReplyCodeData(500, "Internal server error")},
 		};
 
 		static Dictionary<ContentType, string> ContentTypeStrings = new Dictionary<ContentType, string>()
@@ -45,7 +45,8 @@ namespace Blighttp
 
 		public string GetData()
 		{
-			string data = string.Format("HTTP/1.1 {0} {1}\r\n", Code, NumericReplyCodes[Code]);
+			ReplyCodeData codeData = NumericReplyCodes[Code];
+			string data = string.Format("HTTP/1.1 {0} {1}\r\n", codeData.Code, codeData.Description);
 			data += string.Format("Content-Type: {0}\r\n", ContentTypeStrings[Type]);
 			data += string.Format("Content-Length: {0}\r\n\r\n", Body.Length);
 			data += Body;

@@ -40,6 +40,8 @@ namespace Blighttp
 			}
 			else
 				ContentLength = null;
+			//Arguments are null until set by a non-default Handler
+			Arguments = null;
 		}
 
 		public void ProcessBody(string body)

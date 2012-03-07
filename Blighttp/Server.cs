@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+
+using Nil;
 
 namespace Blighttp
 {
@@ -12,6 +15,8 @@ namespace Blighttp
 
 		Socket ServerSocket;
 
+		List<Handler> Handlers;
+
 		HashSet<Client> Clients;
 
 		public Server(string host, int port)
@@ -19,6 +24,7 @@ namespace Blighttp
 			Host = host;
 			Port = port;
 			ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			Handlers = new List<Handler>();
 			Clients = new HashSet<Client>();
 		}
 
@@ -52,8 +58,31 @@ namespace Blighttp
 				Clients.Remove(client);
 		}
 
+		List<string> ConvertPath(string path)
+		{
+			List<string> tokens = path.Tokenise("/");
+			var output = from x in tokens where x.Length > 0 select x;
+			if (output.Count() == 0)
+				throw new HandlerException("Encountered an empty path after tokenisation");
+			return output.ToList();
+		}
+
 		public Reply HandleRequest(Request request)
 		{
+			List<string> remainingPath = ConvertPath(request.Path);
+			foreach (var handler in Handlers)
+			{
+				Reply reply = handler.RouteRequest(request, remainingPath);
+				if (reply != null)
+					return reply;
+			}
+			Reply invalidReply = new Reply(ReplyCode.NotFound, ContentType.Plain, "Invalid path");
+			return invalidReply;
+		}
+
+		public void Add(Handler handler)
+		{
+			Handlers.Add(handler);
 		}
 	}
 }
