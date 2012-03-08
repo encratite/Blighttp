@@ -1,4 +1,6 @@
-﻿namespace Blighttp
+﻿using System.Net;
+
+namespace Blighttp
 {
 	public class TextElement : Element
 	{
@@ -13,7 +15,7 @@
 
 		public override string Render()
 		{
-			return Text;
+			return WebUtility.HtmlEncode(Text) ;
 		}
 	}
 }

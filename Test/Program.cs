@@ -11,7 +11,7 @@ namespace Test
 	{
 		static Reply MarkupTest(Request request)
 		{
-			Head head = new Head("Test");
+			Head head = new Head("<Test>");
 			Body body = new Body();
 			Document document = new Document(head, body);
 			body.Add(new Bold("Success!"));

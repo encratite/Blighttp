@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 
 namespace Blighttp
 {
@@ -24,7 +25,7 @@ namespace Blighttp
 		{
 			string output = "";
 			foreach (var entry in Attributes)
-				output += string.Format(" {0}=\"{1}\"", entry.Key, entry.Value);
+				output += string.Format(" {0}=\"{1}\"", WebUtility.HtmlEncode(entry.Key), WebUtility.HtmlEncode(entry.Value));
 			if (output.Length > 0 && output.Last() == '\n')
 				output.Remove(output.Length - 1);
 			return output;

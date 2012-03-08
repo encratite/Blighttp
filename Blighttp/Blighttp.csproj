@@ -51,7 +51,9 @@
     <Compile Include="Markup\Bold.cs" />
     <Compile Include="Markup\Head.cs" />
     <Compile Include="Markup\Document.cs" />
+    <Compile Include="Markup\Link.cs" />
     <Compile Include="Markup\Meta.cs" />
+    <Compile Include="Markup\Paragraph.cs" />
     <Compile Include="Markup\Title.cs" />
     <Compile Include="Server\Handler.cs" />
     <Compile Include="Server\HandlerException.cs" />
