@@ -1,11 +1,13 @@
 ﻿namespace Blighttp
 {
-	public class StringElement : Element
+	public class TextElement : Element
 	{
 		string Text;
 
-		public StringElement(string text)
+		public TextElement(string text)
 		{
+			ContentType = ElementType.PhrasingContent;
+
 			Text = text;
 		}
 

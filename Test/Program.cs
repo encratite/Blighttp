@@ -11,8 +11,11 @@ namespace Test
 	{
 		static Reply Test(Request request)
 		{
-			string body = "<b>Success!</b>";
-			Reply reply = new Reply(ReplyCode.Ok, ContentType.Markup, body);
+			Head head = new Head("Test");
+			Body body = new Body();
+			Document document = new Document(head, body);
+			body.Add(new Bold("Success!"));
+			Reply reply = new Reply(ReplyCode.Ok, ContentType.Markup, document);
 			return reply;
 		}
 

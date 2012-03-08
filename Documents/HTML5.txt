@@ -22,6 +22,11 @@ Categories: [metadata content]
 Contexts: <head> (simplified)
 Content model: empty
 
+Tag: <link>
+Categories: [metadata content]
+Contexts: where [metadata content] is expected (simplified)
+Content model: emtpy
+
 Tag: <body>
 Categories: [sectioning root]
 Contexts: second element in <html>

@@ -1,10 +1,11 @@
 ﻿namespace Blighttp
 {
-	public class Body : TagElement
+	public class Body : ContentTagElement
 	{
 		public Body()
 			: base("body")
 		{
+			ContentModel = ElementType.FlowContent;
 		}
 	}
 }
