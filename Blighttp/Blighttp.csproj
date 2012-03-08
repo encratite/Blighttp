@@ -42,16 +42,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Handler.cs" />
-    <Compile Include="HandlerException.cs" />
-    <Compile Include="Reply.cs" />
-    <Compile Include="Client.cs" />
-    <Compile Include="ClientException.cs" />
-    <Compile Include="ReplyCodeData.cs" />
-    <Compile Include="Request.cs" />
-    <Compile Include="Server.cs" />
+    <Compile Include="Element\Element.cs" />
+    <Compile Include="Element\StringElement.cs" />
+    <Compile Include="Element\TagElement.cs" />
+    <Compile Include="Markup\HTML.cs" />
+    <Compile Include="Server\Handler.cs" />
+    <Compile Include="Server\HandlerException.cs" />
+    <Compile Include="Server\Reply.cs" />
+    <Compile Include="Server\Client.cs" />
+    <Compile Include="Server\ClientException.cs" />
+    <Compile Include="Server\ReplyCodeData.cs" />
+    <Compile Include="Server\Request.cs" />
+    <Compile Include="Server\Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
