@@ -97,9 +97,9 @@ namespace Blighttp
 					foreach (var trace in exception.StackTrace)
 						message += string.Format("{0}\n", trace);
 					Output.Write(message);
-					Reply exceptionReply = new Reply(ReplyCode.InternalServerError, ContentType.Plain, "Internal server error");
-					return exceptionReply;
 				}
+				Reply exceptionReply = new Reply(ReplyCode.InternalServerError, ContentType.Plain, "Internal server error");
+				return exceptionReply;
 			}
 			Reply invalidReply = new Reply(ReplyCode.NotFound, ContentType.Plain, "Invalid path");
 			return invalidReply;
