@@ -13,6 +13,10 @@ namespace Blighttp
 
 	public class Handler
 	{
+		//A container is a handler that has no HandlerDelegate and merely contains other handlers
+		bool IsContainer;
+
+		//A default handler is a handler that will match an empty routing list (see remainingPath in RouteRequest)
 		bool IsDefaultHandler;
 
 		//Default handlers have no name
@@ -25,18 +29,33 @@ namespace Blighttp
 
 		List<Handler> Children;
 
-		//Default handler constructor
-		public Handler(HandlerDelegateType handlerDelegate)
+		//Container constructor
+		public Handler(string name)
 		{
-			IsDefaultHandler = true;
-			Name = null;
-			HandlerDelegate = handlerDelegate;
+			IsContainer = true;
+			IsDefaultHandler = false;
+			Name = name;
+			HandlerDelegate = null;
 			ArgumentTypes = null;
 			Children = new List<Handler>();
 		}
 
-		public Handler(String name, HandlerDelegateType handlerDelegate, List<ArgumentType> argumentTypes = null)
+		//Default handler constructor
+		public Handler(HandlerDelegateType handlerDelegate)
 		{
+			IsContainer = false;
+			IsDefaultHandler = true;
+			Name = null;
+			HandlerDelegate = handlerDelegate;
+			//Default handlers can't have arguments as they must match an empty routing list
+			ArgumentTypes = null;
+			Children = new List<Handler>();
+		}
+
+		//Constructor for regular handlers
+		public Handler(string name, HandlerDelegateType handlerDelegate, List<ArgumentType> argumentTypes = null)
+		{
+			IsContainer = false;
 			IsDefaultHandler = false;
 			Name = name;
 			HandlerDelegate = handlerDelegate;
@@ -64,7 +83,7 @@ namespace Blighttp
 			{
 				string currentName = remainingPath[0];
 				remainingPath = remainingPath.GetRange(1, remainingPath.Count - 1);
-				if (currentName == Name)
+				if (currentName == Name && !IsContainer)
 				{
 					//The request must be handled by this object
 					List<string> argumentStrings = remainingPath;

@@ -63,8 +63,6 @@ namespace Blighttp
 		{
 			List<string> tokens = path.Tokenise("/");
 			var output = from x in tokens where x.Length > 0 select x;
-			if (output.Count() == 0)
-				throw new HandlerException("Encountered an empty path after tokenisation");
 			return output.ToList();
 		}
 

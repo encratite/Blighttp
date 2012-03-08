@@ -9,7 +9,7 @@ namespace Test
 {
 	class Program
 	{
-		static Reply Test(Request request)
+		static Reply MarkupTest(Request request)
 		{
 			Head head = new Head("Test");
 			Body body = new Body();
@@ -19,11 +19,24 @@ namespace Test
 			return reply;
 		}
 
+		static Reply ExceptionTest(Request request)
+		{
+			throw new Exception("This is a test");
+		}
+
 		static void Main(string[] arguments)
 		{
 			Server server = new Server("127.0.0.1", 9000);
-			Handler handler = new Handler("blight", Test);
-			server.Add(handler);
+
+			Handler container = new Handler("blight");
+			server.Add(container);
+
+			Handler markup = new Handler("markup", MarkupTest);
+			container.Add(markup);
+
+			Handler exception = new Handler("exception", ExceptionTest);
+			container.Add(exception);
+
 			server.Run();
 		}
 	}
