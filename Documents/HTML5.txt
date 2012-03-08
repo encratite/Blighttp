@@ -23,7 +23,7 @@ Contexts: <head> (simplified)
 Content model: empty
 
 Tag: <body>
-Categories: sectioning root
+Categories: [sectioning root]
 Contexts: second element in <html>
 Content model: [flow content]
 
@@ -71,3 +71,18 @@ Tag: <table>
 Categories: [flow content], [palpable content]
 Contexts: where [flow content] is expected
 Content model: one or more <tr> elements
+
+Tag: <tr>
+Categories: none
+Contexts: <table> (simplified)
+Content model: Zero or more <td> or <th>
+
+Tag: <td>
+Categories: [sectioning root]
+Contexts: <tr>
+Content model: [flow content]
+
+Tag: <th>
+Categories: none
+Contexts: <tr>
+Content model: [flow content] (simplified)
