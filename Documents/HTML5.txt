@@ -1,0 +1,73 @@
+Summarised from http://dev.w3.org/html5/spec/Overview.html
+
+All [phrasing content] is [flow content].
+
+Tag: <html>
+Categories: none
+Contexts: root of the document
+Content model: <head>, followed by <body>
+
+Tag: <head>
+Categories: none
+Contexts: first element in <html>
+Content model: [metadata content] exactly one of them must be <title>
+
+Tag: <title>
+Categories: [metadata content]
+Contexts: <head>
+Content model: [text]
+
+Tag: <meta>
+Categories: [metadata content]
+Contexts: <head> (simplified)
+Content model: empty
+
+Tag: <body>
+Categories: sectioning root
+Contexts: second element in <html>
+Content model: [flow content]
+
+Tag: <p>
+Categories: [flow content], [palpable content]
+Contexts: where [flow content] is expected
+Content model: [phrasing content]
+
+Tag: <div>
+Categories: [flow content], [palpable content]
+Contexts: where [flow content] is expected
+Content model: [flow content]
+
+Tag: <ul>
+Categories: [flow content], [palpable content] (the latter only if it has at least one <li>)
+Contexts: [flow content]
+Content model: <li>
+
+Tag: <li>
+Categories: None
+Contexts: <ul>
+Content model: [flow content]
+
+Tag: <a>
+Categories: [flow content], [phrasing content] (the latter only if it ONLY contains [phrasing content]), [interactive content], [palpable content]
+Contexts: [phrasing content] (if it contains phrasing content, which will usually be the case)
+Content model: transparent (content model of the parent), but there must be no [interactive content] inside
+
+Tag: <b>
+Categories: [flow content], [phrasing content], [palpable content]
+Contexts: where [phrasing content] is expected
+Content model: [phrasing content]
+
+Tag: <span>
+Categories: [flow content], [phrasing content], [palpable content]
+Contexts: where [phrasing content] is expected
+Content model: [phrasing content]
+
+Tag: <img>
+Categories: [flow content], [phrasing content], [embedded content]
+Contexts: where [embedded content] is expected
+Content model: none
+
+Tag: <table>
+Categories: [flow content], [palpable content]
+Contexts: where [flow content] is expected
+Content model: one or more <tr> elements
