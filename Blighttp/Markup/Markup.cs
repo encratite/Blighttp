@@ -22,7 +22,11 @@ namespace Blighttp
 		{
 			string output = "";
 			foreach (var pair in attributes)
+			{
+				if (pair.Value == null)
+					continue;
 				output += string.Format(" {0}=\"{1}\"", pair.Key, WebUtility.HtmlEncode(pair.Value));
+			}
 			return output;
 		}
 
@@ -49,12 +53,11 @@ namespace Blighttp
 		public static string ClassContentTag(string tag, string content, string styleClass, bool innerNewlines = true)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string, string>();
-			if (styleClass != null)
-				attributes["class"] = styleClass;
+			attributes["class"] = styleClass;
 			return ContentTag(tag, content, attributes, innerNewlines);
 		}
 
-		public static string Text(string input)
+		public static string Escape(string input)
 		{
 			return WebUtility.HtmlEncode(input);
 		}
@@ -71,7 +74,7 @@ namespace Blighttp
 
 		public static string Title(string title)
 		{
-			return ContentTag("title", Text(title), null, false);
+			return ContentTag("title", Escape(title), null, false);
 		}
 
 		public static string Meta(Dictionary<string, string> attributes)
@@ -114,8 +117,7 @@ namespace Blighttp
 		{
 			Dictionary<string, string> attributes = new Dictionary<string, string>();
 			attributes["href"] = uri;
-			if (styleClass != null)
-				attributes["class"] = styleClass;
+			attributes["class"] = styleClass;
 			return ContentTag("a", content, attributes, false);
 		}
 
@@ -155,6 +157,40 @@ namespace Blighttp
 		public static string TableHead(string content, string styleClass = null)
 		{
 			return ClassContentTag("th", content, styleClass);
+		}
+
+		public static string Form(string uri, string content, string styleClass = null)
+		{
+			Dictionary<string, string> attributes = new Dictionary<string,string>();
+			attributes["class"] = styleClass;
+			attributes["method"] = "post";
+			attributes["action"] = uri;
+			return ContentTag("form", content, attributes);
+		}
+
+		public static string Input(string type, string name, string value = null, string styleClass = null)
+		{
+			Dictionary<string, string> attributes = new Dictionary<string, string>();
+			attributes["class"] = styleClass;
+			attributes["type"] = type;
+			attributes["name"] = name;
+			attributes["value"] = value;
+			return Tag("input", attributes);
+		}
+
+		public static string Text(string name, string value = null, string styleClass = null)
+		{
+			return Input("text", name, value, styleClass);
+		}
+
+		public static string Hidden(string name, string value = null, string styleClass = null)
+		{
+			return Input("hidden", name, value, styleClass);
+		}
+
+		public static string Submit(string description, string styleClass = null)
+		{
+			return Input("submit", null, description, styleClass);
 		}
 	}
 }

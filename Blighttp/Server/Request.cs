@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Web;
+
+using Nil;
 
 namespace Blighttp
 {
@@ -16,9 +19,11 @@ namespace Blighttp
 		public double Version;
 		public Dictionary<string, string> Headers;
 		public int? ContentLength;
+		public Dictionary<string, string> Content;
 
 		//Set by the Handler
 		public List<object> Arguments;
+		public Handler RequestHandler;
 
 		public Request(RequestType type, string path, double version, Dictionary<string, string> headers)
 		{
@@ -40,13 +45,28 @@ namespace Blighttp
 			}
 			else
 				ContentLength = null;
+
+			Content = new Dictionary<string, string>();
+
 			//Arguments are null until set by a non-default Handler
 			Arguments = null;
+
+			RequestHandler = null;
 		}
 
-		public void ProcessBody(string body)
+		public void ProcessContent(string content)
 		{
-			//Placeholder for the future, currently unused
+			content = HttpUtility.UrlDecode(content);
+			List<string> equations = content.Tokenise("&");
+			foreach (var equation in equations)
+			{
+				List<string> tokens = equation.Tokenise("=");
+				if (tokens.Count != 2)
+					throw new ClientException("Invalid URL encoded data");
+				string name = tokens[0];
+				string value = tokens[1];
+				Content[name] = value;
+			}
 		}
 	}
 }

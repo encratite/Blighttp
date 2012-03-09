@@ -22,12 +22,18 @@ namespace Blighttp
 		//Default handlers have no name
 		string Name;
 
+		//This is the function that is called when the handler matches the request
 		HandlerDelegateType HandlerDelegate;
 
 		//Default handlers have no arguments
 		List<ArgumentType> ArgumentTypes;
 
+		//Sub handlers of this handler
 		List<Handler> Children;
+
+		//If this handler has no parent, the parent property is set to null
+		//This property is required to retrieve the absolute path of a handler
+		Handler Parent;
 
 		//Container constructor
 		public Handler(string name)
@@ -38,6 +44,7 @@ namespace Blighttp
 			HandlerDelegate = null;
 			ArgumentTypes = null;
 			Children = new List<Handler>();
+			Parent = null;
 		}
 
 		//Default handler constructor
@@ -50,6 +57,7 @@ namespace Blighttp
 			//Default handlers can't have arguments as they must match an empty routing list
 			ArgumentTypes = null;
 			Children = new List<Handler>();
+			Parent = null;
 		}
 
 		//Constructor for regular handlers
@@ -64,6 +72,13 @@ namespace Blighttp
 			else
 				ArgumentTypes = argumentTypes;
 			Children = new List<Handler>();
+			Parent = null;
+		}
+
+		Reply ProcessRequest(Request request)
+		{
+			request.RequestHandler = this;
+			return HandlerDelegate(request);
 		}
 
 		//Returns null if the handler does not match
@@ -74,7 +89,7 @@ namespace Blighttp
 				if (IsDefaultHandler)
 				{
 					//Execute handler
-					return HandlerDelegate(request);
+					return ProcessRequest(request);
 				}
 				else
 					return null;
@@ -119,7 +134,7 @@ namespace Blighttp
 					}
 					request.Arguments = arguments;
 					//Execute handler
-					return HandlerDelegate(request);
+					return ProcessRequest(request);
 				}
 			}
 			//Check children
@@ -135,9 +150,26 @@ namespace Blighttp
 			return null;
 		}
 
+		public void SetParent(Handler parent)
+		{
+			Parent = parent;
+		}
+
 		public void Add(Handler child)
 		{
+			child.SetParent(this);
 			Children.Add(child);
+		}
+
+		public string GetPath(params object[] arguments)
+		{
+			string output = string.Format("/{0}", Name);
+			foreach (var argument in arguments)
+				output += string.Format("/{0}", argument);
+			if (Parent == null)
+				return output;
+			else
+				return Parent.GetPath() + output;
 		}
 	}
 }

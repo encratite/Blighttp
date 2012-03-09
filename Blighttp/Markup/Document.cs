@@ -11,9 +11,19 @@ namespace Blighttp
 		public string Icon;
 		public string Stylesheet;
 
+		public Document()
+		{
+		}
+
 		public Document(string title)
 		{
 			Title = title;
+		}
+
+		public Document(string icon, string stylesheet)
+		{
+			Icon = icon;
+			Stylesheet = stylesheet;
 		}
 
 		public string Render(string bodyContent)
@@ -23,7 +33,6 @@ namespace Blighttp
 			string headContent = charset + title;
 			if (Icon != null)
 				headContent += Markup.MetaLink("icon", Markup.GetAttributes("type", "image/ico", "href", Icon));
-			//<link rel="stylesheet" type="text/css" media="screen" href="/main/static/style/base.css">
 			if (Stylesheet != null)
 				headContent += Markup.MetaLink("stylesheet", Markup.GetAttributes("type", "text/css", "media", "screen", "href", Stylesheet));
 			string head = Markup.Head(headContent);

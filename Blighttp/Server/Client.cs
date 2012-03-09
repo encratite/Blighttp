@@ -137,7 +137,7 @@ namespace Blighttp
 					try
 					{
 						string header = Buffer.Substring(0, offset);
-						Buffer.Remove(0, offset + EndOfHeader.Length);
+						Buffer = Buffer.Remove(0, offset + EndOfHeader.Length);
 						request = ProcessHeader(header);
 					}
 					catch(ClientException exception)
@@ -169,8 +169,18 @@ namespace Blighttp
 					}
 				}
 
-				string body = Buffer;
-				request.ProcessBody(body);
+				const string key = "Content-Type";
+
+				if (request.Headers.ContainsKey(key))
+				{
+					if (request.Headers[key] == "application/x-www-form-urlencoded")
+					{
+						string content = Buffer;
+						request.ProcessContent(content);
+					}
+					else
+						throw new ClientException("Unknown content encoding");
+				}
 			}
 
 			Reply reply = ClientServer.HandleRequest(request);
