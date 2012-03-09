@@ -45,13 +45,6 @@ namespace Blighttp
 			Body = body;
 		}
 
-		public Reply(ReplyCode code, ContentType type, Document document)
-		{
-			Code = code;
-			Type = type;
-			Body = document.Render();
-		}
-
 		public string GetData()
 		{
 			ReplyCodeData codeData = NumericReplyCodes[Code];

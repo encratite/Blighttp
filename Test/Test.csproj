@@ -35,7 +35,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Blighttp">
+    <Reference Include="Blighttp, Version=0.2.4451.2783, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Blighttp\bin\Debug\Blighttp.dll</HintPath>
     </Reference>
     <Reference Include="System" />

@@ -42,29 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Element\ContentTagElement.cs" />
-    <Compile Include="Element\Element.cs" />
-    <Compile Include="Element\MarkupException.cs" />
-    <Compile Include="Element\TextElement.cs" />
-    <Compile Include="Element\TagElement.cs" />
-    <Compile Include="Markup\Body.cs" />
-    <Compile Include="Markup\Bold.cs" />
-    <Compile Include="Markup\Diverse.cs" />
-    <Compile Include="Markup\Head.cs" />
     <Compile Include="Markup\Document.cs" />
-    <Compile Include="Markup\Image.cs" />
-    <Compile Include="Markup\Link.cs" />
-    <Compile Include="Markup\ListEntry.cs" />
-    <Compile Include="Markup\Span.cs" />
-    <Compile Include="Markup\Table.cs" />
-    <Compile Include="Markup\TableCell.cs" />
-    <Compile Include="Markup\TableHeadCell.cs" />
-    <Compile Include="Markup\TableRow.cs" />
-    <Compile Include="Markup\UnorderedList.cs" />
-    <Compile Include="Markup\Meta.cs" />
-    <Compile Include="Markup\MetaLink.cs" />
-    <Compile Include="Markup\Paragraph.cs" />
-    <Compile Include="Markup\Title.cs" />
+    <Compile Include="Markup\Markup.cs" />
     <Compile Include="Server\Handler.cs" />
     <Compile Include="Server\HandlerException.cs" />
     <Compile Include="Server\Reply.cs" />

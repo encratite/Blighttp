@@ -8,11 +8,9 @@ namespace Test
 	{
 		static Reply MarkupTest(Request request)
 		{
-			Head head = new Head("<Test>");
-			Body body = new Body();
-			Document document = new Document(head, body);
-			body.Add(new Bold("Success!"));
-			Reply reply = new Reply(ReplyCode.Ok, ContentType.Markup, document);
+			Document document = new Document("<Test>");
+			string body = Markup.Bold("Success!");
+			Reply reply = new Reply(ReplyCode.Ok, ContentType.Markup, document.Render(body));
 			return reply;
 		}
 
