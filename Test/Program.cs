@@ -36,7 +36,7 @@ namespace Test
 
 		static void Main(string[] arguments)
 		{
-			Server server = new Server("127.0.0.1", 9000);
+			WebServer server = new WebServer("127.0.0.1", 9000);
 
 			Handler container = new Handler("blight");
 			server.Add(container);

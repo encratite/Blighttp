@@ -51,7 +51,7 @@
     <Compile Include="Server\ClientException.cs" />
     <Compile Include="Server\ReplyCodeData.cs" />
     <Compile Include="Server\Request.cs" />
-    <Compile Include="Server\Server.cs" />
+    <Compile Include="Server\WebServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

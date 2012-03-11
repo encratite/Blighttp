@@ -18,11 +18,11 @@ namespace Blighttp
 		const string Separator = "\r\n";
 		const string EndOfHeader = Separator + Separator;
 
-		Server ClientServer;
+		WebServer ClientServer;
 		Socket ClientSocket;
 		string Buffer;
 
-		public Client(Server server, Socket socket)
+		public Client(WebServer server, Socket socket)
 		{
 			ClientServer = server;
 			ClientSocket = socket;

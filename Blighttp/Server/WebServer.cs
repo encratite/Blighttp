@@ -9,7 +9,7 @@ using Nil;
 
 namespace Blighttp
 {
-	public class Server
+	public class WebServer
 	{
 		string Host;
 		int Port;
@@ -20,7 +20,7 @@ namespace Blighttp
 
 		HashSet<Client> Clients;
 
-		public Server(string host, int port)
+		public WebServer(string host, int port)
 		{
 			Host = host;
 			Port = port;
