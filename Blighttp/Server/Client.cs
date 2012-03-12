@@ -168,11 +168,10 @@ namespace Blighttp
 					}
 				}
 
-				const string key = "Content-Type";
-
-				if (request.Headers.ContainsKey(key))
+				string type;
+				if (request.Headers.TryGetValue("Content-Type", out type))
 				{
-					if (request.Headers[key] == "application/x-www-form-urlencoded")
+					if (type == "application/x-www-form-urlencoded")
 					{
 						string content = Buffer;
 						request.ProcessContent(content);

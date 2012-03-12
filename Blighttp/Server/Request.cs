@@ -31,12 +31,12 @@ namespace Blighttp
 			Path = path;
 			Version = version;
 			Headers = headers;
-			const string ContentLengthKey = "Content-Length";
-			if (Headers.ContainsKey(ContentLengthKey))
+			string lengthString;
+			if (Headers.TryGetValue("Content-Length", out lengthString))
 			{
 				try
 				{
-					ContentLength = Convert.ToInt32(Headers[ContentLengthKey]);
+					ContentLength = Convert.ToInt32(lengthString);
 				}
 				catch (FormatException)
 				{
