@@ -94,49 +94,69 @@ namespace Blighttp
 				else
 					return null;
 			}
-			if (!IsDefaultHandler)
+			if (IsDefaultHandler)
+			{
+				//Default handlers can only match empty remaining paths
+				return null;
+			}
+			else
 			{
 				string currentName = remainingPath[0];
 				remainingPath = remainingPath.GetRange(1, remainingPath.Count - 1);
-				if (currentName == Name && !IsContainer)
+				if (currentName == Name)
 				{
-					//The request must be handled by this object
-					List<string> argumentStrings = remainingPath;
-					if (argumentStrings.Count != ArgumentTypes.Count)
-						throw new HandlerException("Invalid argument count");
-					List<object> arguments = new List<object>();
-					for (int i = 0; i < ArgumentTypes.Count; i++)
+					//We have a match for the request
+					if (IsContainer)
 					{
-						ArgumentType type = ArgumentTypes[i];
-						string argumentString = argumentStrings[i];
-						object argument;
-						switch (type)
-						{
-							case ArgumentType.String:
-								argument = argumentString;
-								break;
-
-							case ArgumentType.Integer:
-								try
-								{
-									argument = Convert.ToInt32(argumentString);
-								}
-								catch (FormatException)
-								{
-									throw new HandlerException("Invalid integer specified");
-								}
-								break;
-
-							default:
-								throw new Exception("Unknown argument type encountered");
-						}
-						arguments.Add(argument);
+						//We have a hit for the container but the container does not handle the request itself
+						//The remaining path needs to be passed on to the children so don't do anything at this point and just continue with the children
 					}
-					request.Arguments = arguments;
-					//Execute handler
-					return ProcessRequest(request);
+					else
+					{
+						//The request must be handled by this object
+						List<string> argumentStrings = remainingPath;
+						if (argumentStrings.Count != ArgumentTypes.Count)
+							throw new HandlerException("Invalid argument count");
+						List<object> arguments = new List<object>();
+						for (int i = 0; i < ArgumentTypes.Count; i++)
+						{
+							ArgumentType type = ArgumentTypes[i];
+							string argumentString = argumentStrings[i];
+							object argument;
+							switch (type)
+							{
+								case ArgumentType.String:
+									argument = argumentString;
+									break;
+
+								case ArgumentType.Integer:
+									try
+									{
+										argument = Convert.ToInt32(argumentString);
+									}
+									catch (FormatException)
+									{
+										throw new HandlerException("Invalid integer specified");
+									}
+									break;
+
+								default:
+									throw new Exception("Unknown argument type encountered");
+							}
+							arguments.Add(argument);
+						}
+						request.Arguments = arguments;
+						//Execute handler
+						return ProcessRequest(request);
+					}
+				}
+				else
+				{
+					//The handler does not match the request
+					return null;
 				}
 			}
+
 			//Check children
 			foreach (var child in Children)
 			{
@@ -147,6 +167,8 @@ namespace Blighttp
 					return reply;
 				}
 			}
+
+			//None of the children matched
 			return null;
 		}
 
@@ -163,13 +185,14 @@ namespace Blighttp
 
 		public string GetPath(params object[] arguments)
 		{
-			string output = string.Format("/{0}", Name);
+			string output = IsDefaultHandler ? "" : string.Format("/{0}", Name);
 			foreach (var argument in arguments)
 				output += string.Format("/{0}", argument);
-			if (Parent == null)
-				return output;
-			else
-				return Parent.GetPath() + output;
+			if (Parent != null)
+				output = Parent.GetPath() + output;
+			if (output.Length == 0)
+				output = "/";
+			return output;
 		}
 	}
 }
