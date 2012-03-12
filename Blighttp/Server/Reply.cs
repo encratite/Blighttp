@@ -13,6 +13,7 @@ namespace Blighttp
 
 	public enum ContentType
 	{
+		JSON,
 		Plain,
 		Markup,
 	};
@@ -30,6 +31,7 @@ namespace Blighttp
 
 		static Dictionary<ContentType, string> ContentTypeStrings = new Dictionary<ContentType, string>()
 		{
+			{ContentType.JSON, "application/json"},
 			{ContentType.Plain, "text/plain"},
 			{ContentType.Markup, "text/html"},
 		};
