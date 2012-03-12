@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Blighttp
 {
@@ -26,7 +27,7 @@ namespace Blighttp
 		HandlerDelegateType HandlerDelegate;
 
 		//Default handlers have no arguments
-		List<ArgumentType> ArgumentTypes;
+		ArgumentType[] ArgumentTypes;
 
 		//Sub handlers of this handler
 		List<Handler> Children;
@@ -61,16 +62,13 @@ namespace Blighttp
 		}
 
 		//Constructor for regular handlers
-		public Handler(string name, HandlerDelegateType handlerDelegate, List<ArgumentType> argumentTypes = null)
+		public Handler(string name, HandlerDelegateType handlerDelegate, params ArgumentType[] arguments)
 		{
 			IsContainer = false;
 			IsDefaultHandler = false;
 			Name = name;
 			HandlerDelegate = handlerDelegate;
-			if (argumentTypes == null)
-				ArgumentTypes = new List<ArgumentType>();
-			else
-				ArgumentTypes = argumentTypes;
+			ArgumentTypes = arguments;
 			Children = new List<Handler>();
 			Parent = null;
 		}
@@ -115,10 +113,10 @@ namespace Blighttp
 					{
 						//The request must be handled by this object
 						List<string> argumentStrings = remainingPath;
-						if (argumentStrings.Count != ArgumentTypes.Count)
+						if (argumentStrings.Count != ArgumentTypes.Length)
 							throw new HandlerException("Invalid argument count");
 						List<object> arguments = new List<object>();
-						for (int i = 0; i < ArgumentTypes.Count; i++)
+						for (int i = 0; i < ArgumentTypes.Length; i++)
 						{
 							ArgumentType type = ArgumentTypes[i];
 							string argumentString = argumentStrings[i];
