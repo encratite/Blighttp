@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Web;
 
 using Nil;
 
@@ -67,7 +66,7 @@ namespace Blighttp
 			if (requestTokens.Count != 3)
 				throw new ClientException("Invalid number of tokens in request line");
 			string requestTypeString = requestTokens[0];
-			string path = HttpUtility.UrlDecode(requestTokens[1]);
+			string path = requestTokens[1];
 			string versionString = requestTokens[2];
 			RequestType type;
 			switch (requestTypeString)

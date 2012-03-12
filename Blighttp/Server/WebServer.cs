@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Web;
 
 using Nil;
 
@@ -62,7 +63,7 @@ namespace Blighttp
 		List<string> ConvertPath(string path)
 		{
 			List<string> tokens = path.Tokenise("/");
-			var output = from x in tokens where x.Length > 0 select x;
+			var output = from x in tokens where x.Length > 0 select HttpUtility.UrlDecode(x);
 			return output.ToList();
 		}
 
