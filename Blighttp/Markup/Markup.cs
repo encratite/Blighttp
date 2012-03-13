@@ -139,6 +139,13 @@ namespace Blighttp
 			return ClassTag("img", styleClass, attributes);
 		}
 
+		public static string Scripnt(string uri)
+		{
+			Dictionary<string, string> attributes = new Dictionary<string, string>();
+			attributes["src"] = uri;
+			return ContentTag("script", "", attributes);
+		}
+
 		public static string Table(string content, string styleClass = null)
 		{
 			return ClassContentTag("table", content, styleClass);
