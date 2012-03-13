@@ -35,10 +35,10 @@ namespace Blighttp
 			return string.Format("<{0}{1}>\n", tag, GetAttributeString(attributes));
 		}
 
-		public static string ClassTag(string tag, string styleClass, Dictionary<string, string> attributes)
+		public static string ClassTag(string tag, string style, string id, Dictionary<string, string> attributes)
 		{
-			if (styleClass != null)
-				attributes["class"] = styleClass;
+			attributes["class"] = style;
+			attributes["id"] = id;
 			return Tag(tag, attributes);
 		}
 
@@ -50,10 +50,11 @@ namespace Blighttp
 			return string.Format("<{0}{1}>{2}{3}{2}</{0}>\n", tag, GetAttributeString(attributes), newlineString, content.Trim());
 		}
 
-		public static string ClassContentTag(string tag, string content, string styleClass, bool innerNewlines = true)
+		public static string ClassContentTag(string tag, string content, string style, string id, bool innerNewlines = true)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string, string>();
-			attributes["class"] = styleClass;
+			attributes["class"] = style;
+			attributes["id"] = id;
 			return ContentTag(tag, content, attributes, innerNewlines);
 		}
 
@@ -93,50 +94,51 @@ namespace Blighttp
 			return ContentTag("body", content);
 		}
 
-		public static string Paragraph(string content, string styleClass = null)
+		public static string Paragraph(string content, string style = null, string id = null)
 		{
-			return ClassContentTag("p", content, styleClass);
+			return ClassContentTag("p", content, style, id);
 		}
 
-		public static string Diverse(string content, string styleClass = null)
+		public static string Diverse(string content, string style = null, string id = null)
 		{
-			return ClassContentTag("div", content, styleClass);
+			return ClassContentTag("div", content, style, id);
 		}
 
-		public static string UnorderedList(string content, string styleClass = null)
+		public static string UnorderedList(string content, string style = null, string id = null)
 		{
-			return ClassContentTag("ul", content, styleClass);
+			return ClassContentTag("ul", content, style, id);
 		}
 
-		public static string ListEntry(string content, string styleClass = null)
+		public static string ListEntry(string content, string style = null, string id = null)
 		{
-			return ClassContentTag("li", content, styleClass, false);
+			return ClassContentTag("li", content, style, id, false);
 		}
 
-		public static string Link(string uri, string content, string styleClass = null)
+		public static string Link(string uri, string content, string style = null, string id = null)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string, string>();
 			attributes["href"] = uri;
-			attributes["class"] = styleClass;
+			attributes["class"] = style;
+			attributes["id"] = id;
 			return ContentTag("a", content, attributes, false);
 		}
 
-		public static string Bold(string content, string styleClass = null)
+		public static string Bold(string content, string style = null, string id = null)
 		{
-			return ClassContentTag("b", content, styleClass, false);
+			return ClassContentTag("b", content, style, id, false);
 		}
 
-		public static string Span(string content, string styleClass = null)
+		public static string Span(string content, string style = null, string id = null)
 		{
-			return ClassContentTag("span", content, styleClass);
+			return ClassContentTag("span", content, style, id);
 		}
 
-		public static string Image(string uri, string description, string styleClass = null)
+		public static string Image(string uri, string description, string style = null, string id = null)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string, string>();
 			attributes["src"] = uri;
 			attributes["alt"] = description;
-			return ClassTag("img", styleClass, attributes);
+			return ClassTag("img", style, id, attributes);
 		}
 
 		public static string Scripnt(string uri)
@@ -146,58 +148,60 @@ namespace Blighttp
 			return ContentTag("script", "", attributes);
 		}
 
-		public static string Table(string content, string styleClass = null)
+		public static string Table(string content, string style = null, string id = null)
 		{
-			return ClassContentTag("table", content, styleClass);
+			return ClassContentTag("table", content, style, id);
 		}
 
-		public static string TableRow(string content, string styleClass = null)
+		public static string TableRow(string content, string style = null, string id = null)
 		{
-			return ClassContentTag("tr", content, styleClass);
+			return ClassContentTag("tr", content, style, id);
 		}
 
-		public static string TableCell(string content, string styleClass = null)
+		public static string TableCell(string content, string style = null, string id = null)
 		{
-			return ClassContentTag("td", content, styleClass);
+			return ClassContentTag("td", content, style, id);
 		}
 
-		public static string TableHead(string content, string styleClass = null)
+		public static string TableHead(string content, string style = null, string id = null)
 		{
-			return ClassContentTag("th", content, styleClass);
+			return ClassContentTag("th", content, style, id);
 		}
 
-		public static string Form(string uri, string content, string styleClass = null)
+		public static string Form(string uri, string content, string style = null, string id = null)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string,string>();
-			attributes["class"] = styleClass;
+			attributes["class"] = style;
+			attributes["id"] = id;
 			attributes["method"] = "post";
 			attributes["action"] = uri;
 			return ContentTag("form", content, attributes);
 		}
 
-		public static string Input(string type, string name, string value = null, string styleClass = null)
+		public static string Input(string type, string name, string value = null, string style = null, string id = null)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string, string>();
-			attributes["class"] = styleClass;
+			attributes["class"] = style;
+			attributes["id"] = id;
 			attributes["type"] = type;
 			attributes["name"] = name;
 			attributes["value"] = value;
 			return Tag("input", attributes);
 		}
 
-		public static string Text(string name, string value = null, string styleClass = null)
+		public static string Text(string name, string value = null, string style = null, string id = null)
 		{
-			return Input("text", name, value, styleClass);
+			return Input("text", name, value, style, id);
 		}
 
-		public static string Hidden(string name, string value = null, string styleClass = null)
+		public static string Hidden(string name, string value = null, string style = null, string id = null)
 		{
-			return Input("hidden", name, value, styleClass);
+			return Input("hidden", name, value, style, id);
 		}
 
-		public static string Submit(string description, string styleClass = null)
+		public static string Submit(string description, string style = null, string id = null)
 		{
-			return Input("submit", null, description, styleClass);
+			return Input("submit", null, description, style, id);
 		}
 	}
 }
