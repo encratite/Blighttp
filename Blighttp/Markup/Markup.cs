@@ -134,7 +134,7 @@ namespace Blighttp
 		public static string Image(string uri, string description, string styleClass = null)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string, string>();
-			attributes["href"] = uri;
+			attributes["src"] = uri;
 			attributes["alt"] = description;
 			return ClassTag("img", styleClass, attributes);
 		}
