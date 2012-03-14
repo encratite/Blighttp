@@ -173,6 +173,11 @@ namespace Blighttp
 			return ClassContentTag("th", content, style, id, false);
 		}
 
+		public static string Caption(string content, string style = null, string id = null)
+		{
+			return ClassContentTag("caption", content, style, id, false);
+		}
+
 		public static string Form(string uri, string content, string style = null, string id = null)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string,string>();
