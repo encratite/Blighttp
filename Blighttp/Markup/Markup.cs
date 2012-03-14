@@ -130,7 +130,7 @@ namespace Blighttp
 
 		public static string Span(string content, string style = null, string id = null)
 		{
-			return ClassContentTag("span", content, style, id);
+			return ClassContentTag("span", content, style, id, false);
 		}
 
 		public static string Image(string uri, string description, string style = null, string id = null)
@@ -141,11 +141,16 @@ namespace Blighttp
 			return ClassTag("img", style, id, attributes);
 		}
 
-		public static string Scripnt(string uri)
+		public static string Script(string uri)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string, string>();
 			attributes["src"] = uri;
-			return ContentTag("script", "", attributes);
+			return ContentTag("script", "", attributes, false);
+		}
+
+		public static string InlineScript(string script)
+		{
+			return ContentTag("script", script);
 		}
 
 		public static string Table(string content, string style = null, string id = null)
@@ -160,12 +165,12 @@ namespace Blighttp
 
 		public static string TableCell(string content, string style = null, string id = null)
 		{
-			return ClassContentTag("td", content, style, id);
+			return ClassContentTag("td", content, style, id, false);
 		}
 
 		public static string TableHead(string content, string style = null, string id = null)
 		{
-			return ClassContentTag("th", content, style, id);
+			return ClassContentTag("th", content, style, id, false);
 		}
 
 		public static string Form(string uri, string content, string style = null, string id = null)
