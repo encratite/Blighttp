@@ -2,12 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Net;
+using System.Web;
 
 namespace Blighttp
 {
 	public class Markup
 	{
+		public static string HtmlEncode(string input)
+		{
+			return HttpUtility.HtmlEncode(input);
+		}
+
+		public static string UriEncode(string input)
+		{
+			string output = HttpUtility.UrlEncode(input);
+			output = output.Replace("+", "%20");
+			return output;
+		}
+
 		public static Dictionary<string, string> GetAttributes(params string[] pairs)
 		{
 			if (pairs.Length % 2 != 0)
@@ -25,7 +37,12 @@ namespace Blighttp
 			{
 				if (pair.Value == null)
 					continue;
-				output += string.Format(" {0}=\"{1}\"", pair.Key, WebUtility.HtmlEncode(pair.Value));
+				string value;
+				if (pair.Key == "href" || pair.Key == "src")
+					value = pair.Value;
+				else
+					value = HtmlEncode(pair.Value);
+				output += string.Format(" {0}=\"{1}\"", pair.Key, value);
 			}
 			return output;
 		}
@@ -62,7 +79,7 @@ namespace Blighttp
 
 		public static string Escape(string input)
 		{
-			return WebUtility.HtmlEncode(input);
+			return HtmlEncode(input);
 		}
 
 		public static string Html(string content)
