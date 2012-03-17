@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Blighttp
 {
@@ -54,14 +57,23 @@ namespace Blighttp
 			Body = body;
 		}
 
-		public string GetData()
+		public byte[] GetData()
 		{
 			ReplyCodeData codeData = NumericReplyCodes[Code];
-			string data = string.Format("HTTP/1.1 {0} {1}\r\n", codeData.Code, codeData.Description);
-			data += string.Format("Content-Type: {0}\r\n", ContentTypeStrings[Type]);
-			data += string.Format("Content-Length: {0}\r\n\r\n", Body.Length);
-			data += Body;
-			return data;
+
+			UTF8Encoding encoding = new UTF8Encoding();
+			byte[] bodyBytes = encoding.GetBytes(Body);
+
+			string header = string.Format("HTTP/1.1 {0} {1}\r\n", codeData.Code, codeData.Description);
+			header += string.Format("Content-Type: {0}\r\n", ContentTypeStrings[Type]);
+			header += string.Format("Content-Length: {0}\r\n\r\n", bodyBytes.Length);
+			byte[] headerBytes = encoding.GetBytes(header);
+
+			byte[] output = new byte[bodyBytes.Length + headerBytes.Length];
+			Buffer.BlockCopy(headerBytes, 0, output, 0, headerBytes.Length);
+			Buffer.BlockCopy(bodyBytes, 0, output, headerBytes.Length, bodyBytes.Length);
+
+			return output;
 		}
 	}
 }

@@ -14,6 +14,8 @@ namespace Blighttp
 
 	public class Request
 	{
+		public string ClientAddress;
+
 		public RequestType Type;
 		public string Path;
 		public double Version;
@@ -25,8 +27,9 @@ namespace Blighttp
 		public List<object> Arguments;
 		public Handler RequestHandler;
 
-		public Request(RequestType type, string path, double version, Dictionary<string, string> headers)
+		public Request(string clientAddress, RequestType type, string path, double version, Dictionary<string, string> headers)
 		{
+			ClientAddress = clientAddress;
 			Type = type;
 			Path = path;
 			Version = version;
@@ -45,6 +48,9 @@ namespace Blighttp
 			}
 			else
 				ContentLength = null;
+
+
+			Headers.TryGetValue("X-Real-IP", out ClientAddress);
 
 			Content = new Dictionary<string, string>();
 

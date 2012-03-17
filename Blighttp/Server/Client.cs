@@ -46,13 +46,19 @@ namespace Blighttp
 
 		void WriteLine(string message, params object[] arguments)
 		{
-			IPEndPoint endPoint = (IPEndPoint)ClientSocket.RemoteEndPoint;
-			Output.WriteLine(string.Format("[{0}] {1}", endPoint.Address, message), arguments);
+			Output.WriteLine(string.Format("[{0}] {1}", GetAddress(), message), arguments);
 		}
 
-		void Terminate(string reason)
+		string GetAddress()
 		{
-			WriteLine(reason);
+			IPEndPoint endPoint = (IPEndPoint)ClientSocket.RemoteEndPoint;
+			return endPoint.Address.ToString();
+		}
+
+		void Terminate(string reason = null)
+		{
+			if (reason != null)
+				WriteLine(reason);
 			ClientSocket.Close();
 			ClientServer.RemoveClient(this);
 		}
@@ -107,13 +113,12 @@ namespace Blighttp
 				string value = line.Substring(offset + target.Length);
 				headers[key] = value.Trim();
 			}
-			Request request = new Request(type, path, httpVersion, headers);
+			Request request = new Request(GetAddress(), type, path, httpVersion, headers);
 			return request;
 		}
 
 		public void Run()
 		{
-			WriteLine("Connected");
 			Request request;
 			while (true)
 			{
@@ -182,12 +187,9 @@ namespace Blighttp
 			}
 
 			Reply reply = ClientServer.HandleRequest(request);
-			string packet = reply.GetData();
-			UTF8Encoding encoding = new UTF8Encoding();
-			byte[] bytes = encoding.GetBytes(packet);
-			ClientSocket.Send(bytes);
+			ClientSocket.Send(reply.GetData());
 
-			Terminate("Disconnected");
+			Terminate();
 		}
 	}
 }

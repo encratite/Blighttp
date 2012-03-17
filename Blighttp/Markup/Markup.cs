@@ -46,6 +46,8 @@ namespace Blighttp
 		{
 			if (attributes == null)
 				attributes = new Dictionary<string, string>();
+			if (content.Length == 0)
+				innerNewlines = false;
 			string newlineString = innerNewlines ? "\n" : "";
 			return string.Format("<{0}{1}>{2}{3}{2}</{0}>\n", tag, GetAttributeString(attributes), newlineString, content.Trim());
 		}

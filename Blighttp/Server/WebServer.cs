@@ -10,6 +10,8 @@ using Nil;
 
 namespace Blighttp
 {
+	public delegate void RequestObserver(Request request);
+
 	public class WebServer
 	{
 		string Host;
@@ -21,10 +23,13 @@ namespace Blighttp
 
 		HashSet<Client> Clients;
 
-		public WebServer(string host, int port)
+		RequestObserver Observer;
+
+		public WebServer(string host, int port, RequestObserver observer = null)
 		{
 			Host = host;
 			Port = port;
+			Observer = observer;
 			ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			Handlers = new List<Handler>();
 			Clients = new HashSet<Client>();
@@ -41,8 +46,6 @@ namespace Blighttp
 		public void Run()
 		{
 			BindAndListen();
-
-			Console.WriteLine("Running on {0}:{1}", Host, Port);
 
 			while (true)
 			{
@@ -69,6 +72,9 @@ namespace Blighttp
 
 		public Reply HandleRequest(Request request)
 		{
+			if (Observer != null)
+				Observer(request);
+
 			try
 			{
 				List<string> remainingPath = ConvertPath(request.Path);
