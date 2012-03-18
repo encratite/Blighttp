@@ -197,6 +197,15 @@ namespace Blighttp
 			return ClassContentTag("caption", content, style, id, false);
 		}
 
+		public static string InlineFrame(string uri, string style = null, string id = null)
+		{
+			Dictionary<string, string> attributes = new Dictionary<string, string>();
+			attributes["src"] = uri;
+			attributes["class"] = style;
+			attributes["id"] = id;
+			return ContentTag("iframe", "", attributes, false);
+		}
+
 		public static string Form(string uri, string content, string style = null, string id = null)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string,string>();
@@ -231,6 +240,26 @@ namespace Blighttp
 		public static string Submit(string description, string style = null, string id = null)
 		{
 			return Input("submit", null, description, style, id);
+		}
+
+		public static string Select(string name, string content, string style = null, string id = null)
+		{
+			Dictionary<string, string> attributes = new Dictionary<string, string>();
+			attributes["name"] = name;
+			attributes["class"] = style;
+			attributes["id"] = id;
+			return ContentTag("select", content, attributes);
+		}
+
+		public static string Option(string value, string content, bool selected = false, string style = null, string id = null)
+		{
+			Dictionary<string, string> attributes = new Dictionary<string, string>();
+			attributes["value"] = value;
+			attributes["class"] = style;
+			attributes["id"] = id;
+			if (selected)
+				attributes["selected"] = "selected";
+			return ContentTag("option", content, attributes, false);
 		}
 	}
 }

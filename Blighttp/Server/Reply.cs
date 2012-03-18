@@ -8,6 +8,7 @@ namespace Blighttp
 	public enum ReplyCode
 	{
 		Ok,
+		Found,
 		BadRequest,
 		Forbidden,
 		NotFound,
@@ -26,6 +27,7 @@ namespace Blighttp
 		static Dictionary<ReplyCode, ReplyCodeData> NumericReplyCodes = new Dictionary<ReplyCode, ReplyCodeData>()
 		{
 			{ReplyCode.Ok, new ReplyCodeData(200, "OK")},
+			{ReplyCode.Found, new ReplyCodeData(302, "Found")},
 			{ReplyCode.BadRequest, new ReplyCodeData(400, "Bad request")},
 			{ReplyCode.Forbidden, new ReplyCodeData(403, "Forbidden")},
 			{ReplyCode.NotFound, new ReplyCodeData(404, "Not found")},
@@ -55,10 +57,18 @@ namespace Blighttp
 		//For non-chunked transfers
 		string Body;
 
+		bool IsReferral;
+		string Location;
+
 		//For chunked transfers
 		ChunkedHandlerDelegateType ChunkedHandlerDelegate;
 
 		UTF8Encoding Encoding = new UTF8Encoding();
+
+		//Emtpty constructor for named construction
+		public Reply()
+		{
+		}
 
 		//Constructor for non-chunked replies
 		public Reply(ReplyCode code, ContentType type, string body)
@@ -77,16 +87,29 @@ namespace Blighttp
 		//Constructor for chunked replies
 		public Reply(ReplyCode code, ContentType type, ChunkedHandlerDelegateType chunkedHandlerDelegate)
 		{
-			Initialise(code, type, chunkedHandlerDelegate);
+			Initialise(code, type);
+			IsChunkedHandler = true;
+			ChunkedHandlerDelegate = chunkedHandlerDelegate;
 		}
 
-		void Initialise(ReplyCode code, ContentType type, ChunkedHandlerDelegateType chunkedHandlerDelegate = null)
+		void Initialise(ReplyCode code, ContentType type)
 		{
 			Code = code;
 			Type = type;
-			ChunkedHandlerDelegate = chunkedHandlerDelegate;
-			IsChunkedHandler = ChunkedHandlerDelegate != null;
+			IsChunkedHandler = false;
+			ChunkedHandlerDelegate = null;
+			IsReferral = false;
 			Encoding = new UTF8Encoding();
+		}
+
+		public static Reply Referral(string uri)
+		{
+			Reply reply = new Reply();
+			reply.Initialise(ReplyCode.Found, ContentType.Plain);
+			reply.IsReferral = true;
+			reply.Location = uri;
+			reply.Body = "";
+			return reply;
 		}
 
 		string GetCommonHeader()
@@ -139,7 +162,11 @@ namespace Blighttp
 		{
 			byte[] bodyBytes = Encoding.GetBytes(Body);
 			string header = GetCommonHeader();
-			header += string.Format("Content-Length: {0}\r\n\r\n", bodyBytes.Length);
+			if (IsReferral)
+				header += string.Format("Location: {0}\r\n", Location);
+			else
+				header += string.Format("Content-Length: {0}\r\n", bodyBytes.Length);
+			header += "\r\n";
 			byte[] headerBytes = Encoding.GetBytes(header);
 			return MergeHeaderAndBody(headerBytes, bodyBytes);
 		}
