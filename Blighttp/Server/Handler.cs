@@ -11,6 +11,7 @@ namespace Blighttp
 	};
 
 	public delegate Reply HandlerDelegateType(Request request);
+	public delegate string ChunkedHandlerDelegateType(Request request);
 
 	public class Handler
 	{
@@ -20,11 +21,20 @@ namespace Blighttp
 		//A default handler is a handler that will match an empty routing list (see remainingPath in RouteRequest)
 		bool IsDefaultHandler;
 
+		//A chunked handler provides small portions of the reply in repeated calls to the handler
+		bool IsChunkedHandler;
+
 		//Default handlers have no name
 		string Name;
 
 		//This is the function that is called when the handler matches the request
 		HandlerDelegateType HandlerDelegate;
+
+		//This is a partial content provider that is repeatedly called until it returns null, for chunked transfers
+		ChunkedHandlerDelegateType ChunkedHandlerDelegate;
+
+		ReplyCode ChunkedReplyCode;
+		ContentType ChunkedContentType;
 
 		//Default handlers have no arguments
 		ArgumentType[] ArgumentTypes;
@@ -36,11 +46,18 @@ namespace Blighttp
 		//This property is required to retrieve the absolute path of a handler
 		Handler Parent;
 
+		//Empty default constructor for internal use only
+		Handler()
+		{
+		}
+
 		//Container constructor
 		public Handler(string name)
 		{
 			IsContainer = true;
 			IsDefaultHandler = false;
+			IsChunkedHandler = false;
+
 			Name = name;
 			HandlerDelegate = null;
 			ArgumentTypes = null;
@@ -53,6 +70,8 @@ namespace Blighttp
 		{
 			IsContainer = false;
 			IsDefaultHandler = true;
+			IsChunkedHandler = false;
+
 			Name = null;
 			HandlerDelegate = handlerDelegate;
 			//Default handlers can't have arguments as they must match an empty routing list
@@ -66,17 +85,49 @@ namespace Blighttp
 		{
 			IsContainer = false;
 			IsDefaultHandler = false;
+			IsChunkedHandler = false;
+
 			Name = name;
 			HandlerDelegate = handlerDelegate;
+			ChunkedHandlerDelegate = null;
 			ArgumentTypes = arguments;
 			Children = new List<Handler>();
 			Parent = null;
 		}
 
+		//Constructor for chunked handlers
+		void ChunkedHandlerInitialisation(string name, ChunkedHandlerDelegateType chunkedHandlerDelegate, ContentType contentType = ContentType.Plain, params ArgumentType[] arguments)
+		{
+			IsContainer = false;
+			IsDefaultHandler = false;
+			IsChunkedHandler = true;
+
+			//The reply code is currently not customisable because it's not a common use case for chunked handlers
+			ChunkedReplyCode = ReplyCode.Ok;
+			ChunkedContentType = contentType;
+
+			Name = name;
+			HandlerDelegate = null;
+			ChunkedHandlerDelegate = chunkedHandlerDelegate;
+			ArgumentTypes = arguments;
+			Children = new List<Handler>();
+			Parent = null;
+		}
+
+		public static Handler ChunkedHandler(string name, ChunkedHandlerDelegateType chunkedHandlerDelegate, ContentType contentType = ContentType.Plain, params ArgumentType[] arguments)
+		{
+			Handler handler = new Handler();
+			handler.ChunkedHandlerInitialisation(name, chunkedHandlerDelegate, contentType, arguments);
+			return handler;
+		}
+
 		Reply ProcessRequest(Request request)
 		{
 			request.RequestHandler = this;
-			return HandlerDelegate(request);
+			if (IsChunkedHandler)
+				return new Reply(ChunkedReplyCode, ChunkedContentType, ChunkedHandlerDelegate);
+			else
+				return HandlerDelegate(request);
 		}
 
 		//Returns null if the handler does not match

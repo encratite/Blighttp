@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 using Blighttp;
 
@@ -34,6 +35,12 @@ namespace Test
 			throw new Exception("This is a test");
 		}
 
+		static string ChunkedTest(Request request)
+		{
+			Thread.Sleep(2000);
+			return Markup.InlineScript("alert('Success');");
+		}
+
 		static void Main(string[] arguments)
 		{
 			WebServer server = new WebServer("127.0.0.1", 9000);
@@ -41,14 +48,17 @@ namespace Test
 			Handler container = new Handler("blight");
 			server.Add(container);
 
-			Handler markup = new Handler("markup", MarkupTest);
-			container.Add(markup);
+			Handler markupHandler = new Handler("markup", MarkupTest);
+			container.Add(markupHandler);
 
-			Handler exception = new Handler("exception", ExceptionTest);
-			container.Add(exception);
+			Handler exceptionHandler = new Handler("exception", ExceptionTest);
+			container.Add(exceptionHandler);
 
 			SubmissionHandler = new Handler("submission", SubmissionTest);
 			container.Add(SubmissionHandler);
+
+			Handler chunkedHandler = Handler.ChunkedHandler("chunked", ChunkedTest, ContentType.Markup);
+			container.Add(chunkedHandler);
 
 			server.Run();
 		}

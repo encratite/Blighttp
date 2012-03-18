@@ -119,77 +119,97 @@ namespace Blighttp
 
 		public void Run()
 		{
-			Request request;
-			while (true)
+			try
 			{
-				bool connectionActive = Read();
-				if (!connectionActive)
-				{
-					Terminate("Disconnected while reading headers");
-					return;
-				}
-				if (Buffer.Length > MaximumBufferSize)
-				{
-					Terminate("Maximum buffer size exceeded");
-					return;
-				}
-
-				int offset = Buffer.IndexOf(EndOfHeader);
-				if (offset > 0)
-				{
-					//Header has been fully read
-					try
-					{
-						string header = Buffer.Substring(0, offset);
-						Buffer = Buffer.Remove(0, offset + EndOfHeader.Length);
-						request = ProcessHeader(header);
-					}
-					catch(ClientException exception)
-					{
-						Terminate(exception.Message);
-						return;
-					}
-					break;
-				}
-
-				//Header still not available, continue reading
-			}
-
-			if (request.ContentLength.HasValue)
-			{
-				//The request might have a body
-				if (request.ContentLength > MaximumBufferSize)
-				{
-					Terminate("Body exceeds maximum buffer size");
-					return;
-				}
-				while (Buffer.Length < request.ContentLength)
+				Request request;
+				while (true)
 				{
 					bool connectionActive = Read();
 					if (!connectionActive)
 					{
-						Terminate("Disconnected while reading body");
+						Terminate("Disconnected while reading headers");
 						return;
 					}
-				}
-
-				string type;
-				if (request.Headers.TryGetValue("Content-Type", out type))
-				{
-					if (type == "application/x-www-form-urlencoded")
+					if (Buffer.Length > MaximumBufferSize)
 					{
-						string content = Buffer;
-						request.ProcessContent(content);
+						Terminate("Maximum buffer size exceeded");
+						return;
 					}
-					else
-						throw new ClientException("Unknown content encoding");
+
+					int offset = Buffer.IndexOf(EndOfHeader);
+					if (offset > 0)
+					{
+						//Header has been fully read
+
+						string header = Buffer.Substring(0, offset);
+						Buffer = Buffer.Remove(0, offset + EndOfHeader.Length);
+						request = ProcessHeader(header);
+
+						break;
+					}
+
+					//Header still not available, continue reading
 				}
+
+				if (request.ContentLength.HasValue)
+				{
+					//The request might have a body
+					if (request.ContentLength > MaximumBufferSize)
+					{
+						Terminate("Body exceeds maximum buffer size");
+						return;
+					}
+					while (Buffer.Length < request.ContentLength)
+					{
+						bool connectionActive = Read();
+						if (!connectionActive)
+						{
+							Terminate("Disconnected while reading body");
+							return;
+						}
+					}
+
+					string type;
+					if (request.Headers.TryGetValue("Content-Type", out type))
+					{
+						if (type == "application/x-www-form-urlencoded")
+						{
+							string content = Buffer;
+							request.ProcessContent(content);
+						}
+						else
+							Terminate("Unknown content encoding");
+					}
+				}
+
+				Reply reply = ClientServer.HandleRequest(request);
+				if (reply.IsChunked)
+				{
+					ClientSocket.NoDelay = true;
+					byte[] header = reply.GetChunkedHeader();
+					Console.WriteLine(header);
+					ClientSocket.Send(header);
+					bool wasLastChunk = false;
+					while (!wasLastChunk)
+					{
+						byte[] chunk = reply.GetChunkedData(request, out wasLastChunk);
+						Console.WriteLine(chunk);
+						ClientSocket.Send(chunk);
+					}
+				}
+				else
+					ClientSocket.Send(reply.GetData());
+
+				Terminate();
 			}
-
-			Reply reply = ClientServer.HandleRequest(request);
-			ClientSocket.Send(reply.GetData());
-
-			Terminate();
+			catch (SocketException exception)
+			{
+				Terminate(exception.Message);
+			}
+			catch (ClientException exception)
+			{
+				Terminate(exception.Message);
+			}
 		}
 	}
 }

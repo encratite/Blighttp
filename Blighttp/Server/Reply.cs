@@ -39,41 +39,109 @@ namespace Blighttp
 			{ContentType.Markup, "text/html"},
 		};
 
+		public bool IsChunked
+		{
+			get
+			{
+				return IsChunkedHandler;
+			}
+		}
+
 		ReplyCode Code;
 		ContentType Type;
+
+		bool IsChunkedHandler;
+
+		//For non-chunked transfers
 		string Body;
 
+		//For chunked transfers
+		ChunkedHandlerDelegateType ChunkedHandlerDelegate;
+
+		UTF8Encoding Encoding = new UTF8Encoding();
+
+		//Constructor for non-chunked replies
 		public Reply(ReplyCode code, ContentType type, string body)
 		{
-			Code = code;
-			Type = type;
+			Initialise(code, type);
 			Body = body;
 		}
 
+		//More convenient constructor non-chunked 200 OK replies
 		public Reply(string body)
 		{
-			Code = ReplyCode.Ok;
-			Type = ContentType.Markup;
+			Initialise(ReplyCode.Ok, ContentType.Markup);
 			Body = body;
+		}
+
+		//Constructor for chunked replies
+		public Reply(ReplyCode code, ContentType type, ChunkedHandlerDelegateType chunkedHandlerDelegate)
+		{
+			Initialise(code, type, chunkedHandlerDelegate);
+		}
+
+		void Initialise(ReplyCode code, ContentType type, ChunkedHandlerDelegateType chunkedHandlerDelegate = null)
+		{
+			Code = code;
+			Type = type;
+			ChunkedHandlerDelegate = chunkedHandlerDelegate;
+			IsChunkedHandler = ChunkedHandlerDelegate != null;
+			Encoding = new UTF8Encoding();
+		}
+
+		string GetCommonHeader()
+		{
+			ReplyCodeData codeData = NumericReplyCodes[Code];
+			string header = string.Format("HTTP/1.1 {0} {1}\r\n", codeData.Code, codeData.Description);
+			header += string.Format("Content-Type: {0}\r\n", ContentTypeStrings[Type]);
+			return header;
+		}
+
+		public byte[] GetChunkedHeader()
+		{
+			string header = GetCommonHeader();
+			header += "Transfer-Encoding: chunked\r\n\r\n";
+			byte[] headerBytes = Encoding.GetBytes(header);
+			return headerBytes;
+		}
+
+		byte[] MergeHeaderAndBody(byte[] header, byte[] body)
+		{
+			byte[] output = new byte[body.Length + header.Length];
+			Buffer.BlockCopy(header, 0, output, 0, header.Length);
+			Buffer.BlockCopy(body, 0, output, header.Length, body.Length);
+
+			return output;
+		}
+
+		public byte[] GetChunkedData(Request request, out bool WasLastChunk)
+		{
+			string chunkBody = ChunkedHandlerDelegate(request);
+			if (chunkBody == null)
+			{
+				WasLastChunk = true;
+				return Encoding.GetBytes("0\r\n");
+			}
+			else
+			{
+				WasLastChunk = false;
+				const string tail = "\r\n";
+				byte[] chunkBodyBytes = Encoding.GetBytes(chunkBody + tail);
+				int chunkBodySize = chunkBodyBytes.Length - tail.Length;
+				string chunkHeader = string.Format("{0:X}\r\n", chunkBodySize);
+				byte[] chunkHeaderBytes = Encoding.GetBytes(chunkHeader);
+				return MergeHeaderAndBody(chunkHeaderBytes, chunkBodyBytes);
+			}
+
 		}
 
 		public byte[] GetData()
 		{
-			ReplyCodeData codeData = NumericReplyCodes[Code];
-
-			UTF8Encoding encoding = new UTF8Encoding();
-			byte[] bodyBytes = encoding.GetBytes(Body);
-
-			string header = string.Format("HTTP/1.1 {0} {1}\r\n", codeData.Code, codeData.Description);
-			header += string.Format("Content-Type: {0}\r\n", ContentTypeStrings[Type]);
+			byte[] bodyBytes = Encoding.GetBytes(Body);
+			string header = GetCommonHeader();
 			header += string.Format("Content-Length: {0}\r\n\r\n", bodyBytes.Length);
-			byte[] headerBytes = encoding.GetBytes(header);
-
-			byte[] output = new byte[bodyBytes.Length + headerBytes.Length];
-			Buffer.BlockCopy(headerBytes, 0, output, 0, headerBytes.Length);
-			Buffer.BlockCopy(bodyBytes, 0, output, headerBytes.Length, bodyBytes.Length);
-
-			return output;
+			byte[] headerBytes = Encoding.GetBytes(header);
+			return MergeHeaderAndBody(headerBytes, bodyBytes);
 		}
 	}
 }
