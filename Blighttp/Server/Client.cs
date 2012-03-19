@@ -203,6 +203,10 @@ namespace Blighttp
 
 				Terminate();
 			}
+			catch (ObjectDisposedException exception)
+			{
+				Terminate(exception.Message);
+			}
 			catch (SocketException exception)
 			{
 				Terminate(exception.Message);
