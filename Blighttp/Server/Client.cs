@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 using Nil;
 
@@ -27,6 +28,7 @@ namespace Blighttp
 			ClientSocket = socket;
 			ClientSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, ReceiveTimeout);
 			Buffer = "";
+			(new Thread(Run)).Start();
 		}
 
 		bool Read()
@@ -60,7 +62,6 @@ namespace Blighttp
 			if (reason != null)
 				WriteLine(reason);
 			ClientSocket.Close();
-			ClientServer.RemoveClient(this);
 		}
 
 		Request ProcessHeader(string header)

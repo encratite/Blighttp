@@ -21,7 +21,6 @@ namespace Blighttp
 
 		List<Handler> Handlers;
 
-		HashSet<Client> Clients;
 
 		RequestObserver Observer;
 
@@ -32,15 +31,14 @@ namespace Blighttp
 			Observer = observer;
 			ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			Handlers = new List<Handler>();
-			Clients = new HashSet<Client>();
 		}
 
-		void BindAndListen()
+		void BindAndListen(int listenCount = -1)
 		{
 			IPAddress address = Dns.GetHostAddresses(Host)[0];
 			IPEndPoint endPoint = new IPEndPoint(address, Port);
 			ServerSocket.Bind(endPoint);
-			ServerSocket.Listen(-1);
+			ServerSocket.Listen(listenCount);
 		}
 
 		public void Run()
@@ -51,16 +49,7 @@ namespace Blighttp
 			{
 				Socket clientSocket = ServerSocket.Accept();
 				Client client = new Client(this, clientSocket);
-				lock (Clients)
-					Clients.Add(client);
-				client.Run();
 			}
-		}
-
-		public void RemoveClient(Client client)
-		{
-			lock (Clients)
-				Clients.Remove(client);
 		}
 
 		List<string> ConvertPath(string path)
