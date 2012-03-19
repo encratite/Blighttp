@@ -179,7 +179,10 @@ namespace Blighttp
 							request.ProcessContent(content);
 						}
 						else
+						{
 							Terminate("Unknown content encoding");
+							return;
+						}
 					}
 				}
 
@@ -202,10 +205,6 @@ namespace Blighttp
 					ClientSocket.Send(reply.GetData());
 
 				Terminate();
-			}
-			catch (ObjectDisposedException exception)
-			{
-				Terminate(exception.Message);
 			}
 			catch (SocketException exception)
 			{
