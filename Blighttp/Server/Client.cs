@@ -28,7 +28,6 @@ namespace Blighttp
 			ClientSocket = socket;
 			ClientSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, ReceiveTimeout);
 			Buffer = "";
-			(new Thread(Run)).Start();
 		}
 
 		bool Read()
@@ -120,91 +119,101 @@ namespace Blighttp
 
 		public void Run()
 		{
-			try
+			(new Thread(RunThread)).Start();
+		}
+
+		void HandleRequest()
+		{
+			Request request;
+			while (true)
 			{
-				Request request;
-				while (true)
+				bool connectionActive = Read();
+				if (!connectionActive)
+				{
+					Terminate("Disconnected while reading headers");
+					return;
+				}
+				if (Buffer.Length > MaximumBufferSize)
+				{
+					Terminate("Maximum buffer size exceeded");
+					return;
+				}
+
+				int offset = Buffer.IndexOf(EndOfHeader);
+				if (offset > 0)
+				{
+					//Header has been fully read
+
+					string header = Buffer.Substring(0, offset);
+					Buffer = Buffer.Remove(0, offset + EndOfHeader.Length);
+					request = ProcessHeader(header);
+
+					break;
+				}
+
+				//Header still not available, continue reading
+			}
+
+			if (request.ContentLength.HasValue)
+			{
+				//The request might have a body
+				if (request.ContentLength > MaximumBufferSize)
+				{
+					Terminate("Body exceeds maximum buffer size");
+					return;
+				}
+				while (Buffer.Length < request.ContentLength)
 				{
 					bool connectionActive = Read();
 					if (!connectionActive)
 					{
-						Terminate("Disconnected while reading headers");
+						Terminate("Disconnected while reading body");
 						return;
 					}
-					if (Buffer.Length > MaximumBufferSize)
-					{
-						Terminate("Maximum buffer size exceeded");
-						return;
-					}
-
-					int offset = Buffer.IndexOf(EndOfHeader);
-					if (offset > 0)
-					{
-						//Header has been fully read
-
-						string header = Buffer.Substring(0, offset);
-						Buffer = Buffer.Remove(0, offset + EndOfHeader.Length);
-						request = ProcessHeader(header);
-
-						break;
-					}
-
-					//Header still not available, continue reading
 				}
 
-				if (request.ContentLength.HasValue)
+				string type;
+				if (request.Headers.TryGetValue("Content-Type", out type))
 				{
-					//The request might have a body
-					if (request.ContentLength > MaximumBufferSize)
+					if (type == "application/x-www-form-urlencoded")
 					{
-						Terminate("Body exceeds maximum buffer size");
+						string content = Buffer;
+						request.ProcessContent(content);
+					}
+					else
+					{
+						Terminate("Unknown content encoding");
 						return;
 					}
-					while (Buffer.Length < request.ContentLength)
-					{
-						bool connectionActive = Read();
-						if (!connectionActive)
-						{
-							Terminate("Disconnected while reading body");
-							return;
-						}
-					}
-
-					string type;
-					if (request.Headers.TryGetValue("Content-Type", out type))
-					{
-						if (type == "application/x-www-form-urlencoded")
-						{
-							string content = Buffer;
-							request.ProcessContent(content);
-						}
-						else
-						{
-							Terminate("Unknown content encoding");
-							return;
-						}
-					}
 				}
+			}
 
-				Reply reply = ClientServer.HandleRequest(request);
-				if (reply.IsChunked)
+			Reply reply = ClientServer.HandleRequest(request);
+			if (reply.IsChunked)
+			{
+				ClientSocket.NoDelay = true;
+				byte[] header = reply.GetChunkedHeader();
+				Console.WriteLine(header);
+				ClientSocket.Send(header);
+				bool wasLastChunk = false;
+				while (!wasLastChunk)
 				{
-					ClientSocket.NoDelay = true;
-					byte[] header = reply.GetChunkedHeader();
-					Console.WriteLine(header);
-					ClientSocket.Send(header);
-					bool wasLastChunk = false;
-					while (!wasLastChunk)
-					{
-						byte[] chunk = reply.GetChunkedData(request, out wasLastChunk);
-						Console.WriteLine(chunk);
-						ClientSocket.Send(chunk);
-					}
+					byte[] chunk = reply.GetChunkedData(request, out wasLastChunk);
+					Console.WriteLine(chunk);
+					ClientSocket.Send(chunk);
 				}
-				else
-					ClientSocket.Send(reply.GetData());
+			}
+			else
+				ClientSocket.Send(reply.GetData());
 
-				Terminate();
+			Terminate();
+		}
+
+		void RunThread()
+		{
+			try
+			{
+				HandleRequest();
 			}
 			catch (SocketException exception)
 			{

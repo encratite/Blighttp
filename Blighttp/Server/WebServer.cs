@@ -49,6 +49,7 @@ namespace Blighttp
 			{
 				Socket clientSocket = ServerSocket.Accept();
 				Client client = new Client(this, clientSocket);
+				client.Run();
 			}
 		}
 
