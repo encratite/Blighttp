@@ -13,7 +13,7 @@ namespace Blighttp
 			return HttpUtility.HtmlEncode(input);
 		}
 
-		public static string UriEncode(string input)
+		public static string UrlEncode(string input)
 		{
 			string output = HttpUtility.UrlEncode(input);
 			output = output.Replace("+", "%20");
