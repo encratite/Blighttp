@@ -27,7 +27,7 @@ namespace Blighttp
 		public List<object> Arguments;
 		public Handler RequestHandler;
 
-		public Request(string clientAddress, RequestType type, string path, double version, Dictionary<string, string> headers)
+		public Request(string clientAddress, RequestType type, string path, double version, Dictionary<string, string> headers, bool useRealIP)
 		{
 			Type = type;
 			Path = path;
@@ -48,8 +48,12 @@ namespace Blighttp
 			else
 				ContentLength = null;
 
-
-			if(!Headers.TryGetValue("X-Real-IP", out ClientAddress))
+			if (useRealIP)
+			{
+				if (!Headers.TryGetValue("X-Real-IP", out ClientAddress))
+					throw new ClientException("Real IP not available in request");
+			}
+			else
 				ClientAddress = clientAddress;
 
 			Content = new Dictionary<string, string>();

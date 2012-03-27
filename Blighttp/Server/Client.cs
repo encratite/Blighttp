@@ -113,7 +113,7 @@ namespace Blighttp
 				string value = line.Substring(offset + target.Length);
 				headers[key] = value.Trim();
 			}
-			Request request = new Request(GetAddress(), type, path, httpVersion, headers);
+			Request request = new Request(GetAddress(), type, path, httpVersion, headers, ClientServer.UseRealIP);
 			return request;
 		}
 

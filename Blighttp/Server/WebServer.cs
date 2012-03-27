@@ -21,14 +21,16 @@ namespace Blighttp
 
 		List<Handler> Handlers;
 
-
 		RequestObserver Observer;
 
-		public WebServer(string host, int port, RequestObserver observer = null)
+		public readonly bool UseRealIP;
+
+		public WebServer(string host, int port, RequestObserver observer = null, bool useRealIP = true)
 		{
 			Host = host;
 			Port = port;
 			Observer = observer;
+			UseRealIP = useRealIP;
 			ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			Handlers = new List<Handler>();
 		}
