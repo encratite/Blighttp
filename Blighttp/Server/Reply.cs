@@ -102,12 +102,12 @@ namespace Blighttp
 			Encoding = new UTF8Encoding();
 		}
 
-		public static Reply Referral(string uri)
+		public static Reply Referral(string url)
 		{
 			Reply reply = new Reply();
 			reply.Initialise(ReplyCode.Found, ContentType.Plain);
 			reply.IsReferral = true;
-			reply.Location = uri;
+			reply.Location = url;
 			reply.Body = "";
 			return reply;
 		}

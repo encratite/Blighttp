@@ -133,10 +133,10 @@ namespace Blighttp
 			return ClassContentTag("li", content, style, id, false);
 		}
 
-		public static string Link(string uri, string content, string style = null, string id = null)
+		public static string Link(string url, string content, string style = null, string id = null)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string, string>();
-			attributes["href"] = uri;
+			attributes["href"] = url;
 			attributes["class"] = style;
 			attributes["id"] = id;
 			return ContentTag("a", content, attributes, false);
@@ -152,18 +152,18 @@ namespace Blighttp
 			return ClassContentTag("span", content, style, id, false);
 		}
 
-		public static string Image(string uri, string description, string style = null, string id = null)
+		public static string Image(string url, string description, string style = null, string id = null)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string, string>();
-			attributes["src"] = uri;
+			attributes["src"] = url;
 			attributes["alt"] = description;
 			return ClassTag("img", style, id, attributes);
 		}
 
-		public static string Script(string uri)
+		public static string Script(string url)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string, string>();
-			attributes["src"] = uri;
+			attributes["src"] = url;
 			return ContentTag("script", "", attributes, false);
 		}
 
@@ -197,22 +197,22 @@ namespace Blighttp
 			return ClassContentTag("caption", content, style, id, false);
 		}
 
-		public static string InlineFrame(string uri, string style = null, string id = null)
+		public static string InlineFrame(string url, string style = null, string id = null)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string, string>();
-			attributes["src"] = uri;
+			attributes["src"] = url;
 			attributes["class"] = style;
 			attributes["id"] = id;
 			return ContentTag("iframe", "", attributes, false);
 		}
 
-		public static string Form(string uri, string content, string style = null, string id = null)
+		public static string Form(string url, string content, string style = null, string id = null)
 		{
 			Dictionary<string, string> attributes = new Dictionary<string,string>();
 			attributes["class"] = style;
 			attributes["id"] = id;
 			attributes["method"] = "post";
-			attributes["action"] = uri;
+			attributes["action"] = url;
 			return ContentTag("form", content, attributes);
 		}
 
