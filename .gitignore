@@ -1,5 +1,6 @@
-*.user
+bin
+obj
 *.suo
-/*/obj
-/*/bin
-/References
+*.user
+References
+AssemblyInfo.cs
