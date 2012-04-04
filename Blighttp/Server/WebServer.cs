@@ -14,6 +14,8 @@ namespace Blighttp
 
 	public class WebServer
 	{
+		bool Running;
+
 		string Host;
 		int Port;
 
@@ -47,12 +49,21 @@ namespace Blighttp
 		{
 			BindAndListen();
 
-			while (true)
+			Running = true;
+
+			while (Running)
 			{
 				Socket clientSocket = ServerSocket.Accept();
 				Client client = new Client(this, clientSocket);
 				client.Run();
 			}
+		}
+
+		public void Terminate()
+		{
+			Running = false;
+
+			ServerSocket.Close();
 		}
 
 		List<string> ConvertPath(string path)

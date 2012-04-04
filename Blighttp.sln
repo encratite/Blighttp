@@ -1,9 +1,12 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 11
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blighttp", "Blighttp\Blighttp.csproj", "{42B53038-D8CE-4A10-8E3F-BBDD6E1434E2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{8171956D-A11B-46FD-B146-4E144E237BF0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{42B53038-D8CE-4A10-8E3F-BBDD6E1434E2} = {42B53038-D8CE-4A10-8E3F-BBDD6E1434E2}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
