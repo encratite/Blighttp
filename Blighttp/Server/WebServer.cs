@@ -10,8 +10,6 @@ using Nil;
 
 namespace Blighttp
 {
-	public delegate void RequestObserver(Request request);
-
 	public class WebServer
 	{
 		bool Running;
@@ -19,20 +17,22 @@ namespace Blighttp
 		string Host;
 		int Port;
 
+		public readonly bool UseRealIP;
+
+		IRequestObserver RequestObserver;
+		ICatchAll CatchAll;
+
 		Socket ServerSocket;
 
 		List<Handler> Handlers;
 
-		RequestObserver Observer;
-
-		public readonly bool UseRealIP;
-
-		public WebServer(string host, int port, RequestObserver observer = null, bool useRealIP = true)
+		public WebServer(string host, int port, bool useRealIP = false, IRequestObserver requestObserver = null, ICatchAll catchAll = null)
 		{
 			Host = host;
 			Port = port;
-			Observer = observer;
 			UseRealIP = useRealIP;
+			RequestObserver = requestObserver;
+			CatchAll = catchAll;
 			ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			Handlers = new List<Handler>();
 		}
@@ -79,8 +79,8 @@ namespace Blighttp
 
 		public Reply HandleRequest(Request request)
 		{
-			if (Observer != null)
-				Observer(request);
+			if (RequestObserver != null)
+				RequestObserver.ObserveRequest(request);
 
 			try
 			{
@@ -115,8 +115,13 @@ namespace Blighttp
 					return exceptionReply;
 				}
 			}
-			Reply invalidReply = new Reply(ReplyCode.NotFound, ContentType.Plain, "Invalid path");
-			return invalidReply;
+			if (CatchAll == null)
+			{
+				Reply invalidReply = new Reply(ReplyCode.NotFound, ContentType.Plain, "Invalid path");
+				return invalidReply;
+			}
+			else
+				return CatchAll.CatchAll(request);
 		}
 
 		public void Add(Handler handler)

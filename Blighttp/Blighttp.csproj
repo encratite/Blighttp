@@ -49,6 +49,8 @@
     <Compile Include="Markup\Markup.cs" />
     <Compile Include="Server\Handler.cs" />
     <Compile Include="Server\HandlerException.cs" />
+    <Compile Include="Server\ICatchAll.cs" />
+    <Compile Include="Server\IRequestObserver.cs" />
     <Compile Include="Server\Reply.cs" />
     <Compile Include="Server\Client.cs" />
     <Compile Include="Server\ClientException.cs" />
