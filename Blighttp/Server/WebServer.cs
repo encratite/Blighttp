@@ -39,7 +39,11 @@ namespace Blighttp
 
 		void BindAndListen(int listenCount = -1)
 		{
-			IPAddress address = Dns.GetHostAddresses(Host)[0];
+			IPAddress address;
+			if (Host == null || Host == "")
+				address = IPAddress.Any;
+			else
+				address = Dns.GetHostAddresses(Host)[0];
 			IPEndPoint endPoint = new IPEndPoint(address, Port);
 			ServerSocket.Bind(endPoint);
 			ServerSocket.Listen(listenCount);

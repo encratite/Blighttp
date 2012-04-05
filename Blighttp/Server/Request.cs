@@ -51,7 +51,7 @@ namespace Blighttp
 			if (useRealIP)
 			{
 				if (!Headers.TryGetValue("X-Real-IP", out ClientAddress))
-					throw new ClientException("Real IP not available in request");
+					ClientAddress = clientAddress;
 			}
 			else
 				ClientAddress = clientAddress;
