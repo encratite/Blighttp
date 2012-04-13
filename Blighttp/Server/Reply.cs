@@ -61,7 +61,7 @@ namespace Blighttp
 		string Location;
 
 		//For chunked transfers
-		ChunkedHandlerDelegateType ChunkedHandlerDelegate;
+		ChunkedHandlerCallbackType ChunkedHandlerDelegate;
 
 		UTF8Encoding Encoding = new UTF8Encoding();
 
@@ -85,7 +85,7 @@ namespace Blighttp
 		}
 
 		//Constructor for chunked replies
-		public Reply(ReplyCode code, ContentType type, ChunkedHandlerDelegateType chunkedHandlerDelegate)
+		public Reply(ReplyCode code, ContentType type, ChunkedHandlerCallbackType chunkedHandlerDelegate)
 		{
 			Initialise(code, type);
 			IsChunkedHandler = true;

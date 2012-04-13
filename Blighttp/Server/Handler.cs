@@ -10,8 +10,8 @@ namespace Blighttp
 		Integer,
 	};
 
-	public delegate Reply HandlerDelegateType(Request request);
-	public delegate string ChunkedHandlerDelegateType(Request request);
+	public delegate Reply HandlerCallbackType(Request request);
+	public delegate string ChunkedHandlerCallbackType(Request request);
 
 	public class Handler
 	{
@@ -25,13 +25,13 @@ namespace Blighttp
 		bool IsChunkedHandler;
 
 		//Default handlers have no name
-		string Name;
+		public string Name { get; private set; }
 
 		//This is the function that is called when the handler matches the request
-		HandlerDelegateType HandlerDelegate;
+		HandlerCallbackType HandlerCallback;
 
 		//This is a partial content provider that is repeatedly called until it returns null, for chunked transfers
-		ChunkedHandlerDelegateType ChunkedHandlerDelegate;
+		ChunkedHandlerCallbackType ChunkedCallbackDelegate;
 
 		ReplyCode ChunkedReplyCode;
 		ContentType ChunkedContentType;
@@ -59,21 +59,21 @@ namespace Blighttp
 			IsChunkedHandler = false;
 
 			Name = name;
-			HandlerDelegate = null;
+			HandlerCallback = null;
 			ArgumentTypes = null;
 			Children = new List<Handler>();
 			Parent = null;
 		}
 
 		//Default handler constructor
-		public Handler(HandlerDelegateType handlerDelegate)
+		public Handler(HandlerCallbackType handlerDelegate)
 		{
 			IsContainer = false;
 			IsDefaultHandler = true;
 			IsChunkedHandler = false;
 
 			Name = null;
-			HandlerDelegate = handlerDelegate;
+			HandlerCallback = handlerDelegate;
 			//Default handlers can't have arguments as they must match an empty routing list
 			ArgumentTypes = null;
 			Children = new List<Handler>();
@@ -81,22 +81,22 @@ namespace Blighttp
 		}
 
 		//Constructor for regular handlers
-		public Handler(string name, HandlerDelegateType handlerDelegate, params ArgumentType[] arguments)
+		public Handler(string name, HandlerCallbackType handlerDelegate, params ArgumentType[] arguments)
 		{
 			IsContainer = false;
 			IsDefaultHandler = false;
 			IsChunkedHandler = false;
 
 			Name = name;
-			HandlerDelegate = handlerDelegate;
-			ChunkedHandlerDelegate = null;
+			HandlerCallback = handlerDelegate;
+			ChunkedCallbackDelegate = null;
 			ArgumentTypes = arguments;
 			Children = new List<Handler>();
 			Parent = null;
 		}
 
 		//Constructor for chunked handlers
-		void ChunkedHandlerInitialisation(string name, ChunkedHandlerDelegateType chunkedHandlerDelegate, ContentType contentType = ContentType.Plain, params ArgumentType[] arguments)
+		void ChunkedHandlerInitialisation(string name, ChunkedHandlerCallbackType chunkedHandlerDelegate, ContentType contentType = ContentType.Plain, params ArgumentType[] arguments)
 		{
 			IsContainer = false;
 			IsDefaultHandler = false;
@@ -107,14 +107,14 @@ namespace Blighttp
 			ChunkedContentType = contentType;
 
 			Name = name;
-			HandlerDelegate = null;
-			ChunkedHandlerDelegate = chunkedHandlerDelegate;
+			HandlerCallback = null;
+			ChunkedCallbackDelegate = chunkedHandlerDelegate;
 			ArgumentTypes = arguments;
 			Children = new List<Handler>();
 			Parent = null;
 		}
 
-		public static Handler ChunkedHandler(string name, ChunkedHandlerDelegateType chunkedHandlerDelegate, ContentType contentType = ContentType.Plain, params ArgumentType[] arguments)
+		public static Handler ChunkedHandler(string name, ChunkedHandlerCallbackType chunkedHandlerDelegate, ContentType contentType = ContentType.Plain, params ArgumentType[] arguments)
 		{
 			Handler handler = new Handler();
 			handler.ChunkedHandlerInitialisation(name, chunkedHandlerDelegate, contentType, arguments);
@@ -125,9 +125,9 @@ namespace Blighttp
 		{
 			request.RequestHandler = this;
 			if (IsChunkedHandler)
-				return new Reply(ChunkedReplyCode, ChunkedContentType, ChunkedHandlerDelegate);
+				return new Reply(ChunkedReplyCode, ChunkedContentType, ChunkedCallbackDelegate);
 			else
-				return HandlerDelegate(request);
+				return HandlerCallback(request);
 		}
 
 		//Returns null if the handler does not match

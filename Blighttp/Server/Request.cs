@@ -14,14 +14,14 @@ namespace Blighttp
 
 	public class Request
 	{
-		public string ClientAddress;
+		public readonly string ClientAddress;
 
-		public RequestType Type;
-		public string Path;
-		public double Version;
-		public Dictionary<string, string> Headers;
-		public int? ContentLength;
-		public Dictionary<string, string> Content;
+		public readonly RequestType Type;
+		public readonly string Path;
+		public readonly double Version;
+		public readonly Dictionary<string, string> Headers;
+		public readonly int? ContentLength;
+		public readonly Dictionary<string, string> Content;
 
 		//Set by the Handler
 		public List<object> Arguments;
