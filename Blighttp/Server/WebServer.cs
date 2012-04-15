@@ -77,34 +77,51 @@ namespace Blighttp
 			return output.ToList();
 		}
 
+		Reply TryHandlers(Request request)
+		{
+			List<string> remainingPath = ConvertPath(request.Path);
+			foreach (var handler in Handlers)
+			{
+				Reply reply = handler.RouteRequest(request, remainingPath);
+				if (reply != null)
+					return reply;
+			}
+			return null;
+		}
+
 		public Reply HandleRequest(Request request)
 		{
 			if (RequestObserver != null)
 				RequestObserver.ObserveRequest(request);
 
-			try
+			if (Debugger.IsAttached)
 			{
-				List<string> remainingPath = ConvertPath(request.Path);
-				foreach (var handler in Handlers)
+				try
 				{
-					Reply reply = handler.RouteRequest(request, remainingPath);
+					Reply reply = TryHandlers(request);
 					if (reply != null)
 						return reply;
 				}
-			}
-			catch (HandlerException exception)
-			{
-				Reply exceptionReply = new Reply(ReplyCode.BadRequest, ContentType.Plain, exception.Message);
-				return exceptionReply;
-			}
-			catch (Exception exception)
-			{
-				if (Debugger.IsAttached)
+				catch (HandlerException exception)
 				{
-					//While a debugger is attached, it's more convenient to go right to the source of an exception
-					throw;
+					Reply exceptionReply = new Reply(ReplyCode.BadRequest, ContentType.Plain, exception.Message);
+					return exceptionReply;
 				}
-				else
+			}
+			else
+			{
+				try
+				{
+					Reply reply = TryHandlers(request);
+					if (reply != null)
+						return reply;
+				}
+				catch (HandlerException exception)
+				{
+					Reply exceptionReply = new Reply(ReplyCode.BadRequest, ContentType.Plain, exception.Message);
+					return exceptionReply;
+				}
+				catch (Exception exception)
 				{
 					//Print the exception to the server console but don't leak any information to the client
 					string message = string.Format("An exception of type {0} occurred at {1}: {2}\n", exception.GetType().ToString(), exception.Source, exception.Message);
